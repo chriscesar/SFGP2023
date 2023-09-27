@@ -1,8 +1,10 @@
 # SFGP2023
 Code for conducting analyses of data as part of the **Saltfleet to Gibraltar Point** Environmental Monitoring for 2023
 
-Annual reporting is conducted to assess the impacts of annual beach nourishment activity on intertidal and 
-subtidal biological and abiotic receptor variables.
+Annual beach nourishment is conducted along the Lincolnshire coastline and annual reporting is conducted to assess the impacts of annual beach nourishment activity on intertidal and subtidal biological and abiotic receptor variables.
+
+The monitoring design was established in the mid/late 1990s and the current monitoring appraoch is based on this
+initial design.
 
 ## Analyses conducted
 The scripts within this repo perform the following tasks:
@@ -20,7 +22,7 @@ Intertidal core surveys, aimed at gathering the following:
 * Particle size analyses and sediment destributional statistics
 * Abiotic parameters (chemical)
 * Beach descriptors
-* *Cerastoderma* stock trends
+* *Cerastoderma* stock trends (based on stock data provided by the local IFCA)
 
 ### Subtidal
 Benthic beam trawl surveys, aimed at gathering the following:
