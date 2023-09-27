@@ -3,14 +3,14 @@
 
 cbPalette <- c( ### colourblind-friendly chart colour palette
   # comments reflect Red/Green/Blue equivalents
-  "#0072B2", #000/114/178
-  "#e79f00",
-  "#009E73",#000/158/115
-  "#9ad0f3",
-  "#000000", 
-  "#D55E00",
-  "#CC79A7",
-  "#F0E442"
+  "#0072B2", #000, 114, 178
+  "#e79f00", #231, 159, 0
+  "#009E73", #000, 158, 115
+  "#9ad0f3", #154, 208, 243
+  "#000000", #0, 0, 0
+  "#D55E00", #213, 94, 0
+  "#CC79A7", #204, 121, 167
+  "#F0E442"  #240, 228, 66
   )
 cbPaletteTxt <- c(
   "#0072B2",
