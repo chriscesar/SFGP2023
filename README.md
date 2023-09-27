@@ -23,6 +23,6 @@ Intertidal core surveys, aimed at gathering the following:
 * *Cerastoderma* stock trends
 
 ### Subtidal
-Benthic beam trawl surveys gathering the following:
+Benthic beam trawl surveys, aimed at gathering the following:
 * Epifaunal taxon counts and diversity analyses
 * Shrimp (*Crangon* spp.) demographics
