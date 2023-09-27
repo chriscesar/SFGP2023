@@ -16,13 +16,16 @@ The scripts within this repo perform the following tasks:
 ## Variables considered
 The analyses conducted cover a range of variables, encompassing intertidal and subtidal receptors
 
+### General
+* Summary of annual nourishment activity/volume of sediment introduced
+
 ### Intertidal
 Intertidal core surveys, aimed at gathering the following:
 * Infaunal diversity and multivariate analyses
 * Particle size analyses and sediment destributional statistics
 * Abiotic parameters (chemical)
 * Beach descriptors
-* *Cerastoderma* stock trends (based on stock data provided by the local IFCA)
+* *Cerastoderma* stock estimate trends (based on stock data provided by the local IFCA)
 
 ### Subtidal
 Benthic beam trawl surveys, aimed at gathering the following:
