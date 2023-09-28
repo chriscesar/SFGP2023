@@ -25,7 +25,7 @@ Intertidal core surveys, aimed at gathering the following:
 * Particle size analyses and sediment destributional statistics
 * Abiotic parameters (chemical)
 * Beach descriptors
-* *Cerastoderma* stock estimate trends (based on stock data provided by the local IFCA)
+* Temporal trends of *Cerastoderma* fishery stocks (based on data provided by the local IFCA)
 
 ### Subtidal
 Benthic beam trawl surveys, aimed at gathering the following:
