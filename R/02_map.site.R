@@ -60,7 +60,8 @@ m <- leaflet() %>%
   #            popup=tmp$Transect)
   addCircleMarkers(lng=coordinates(spdf)[,1],
                    lat=coordinates(spdf)[,2],
-                   color = spdf$zone
+                   # color = ~spdf$zone,
+                   popup=tmp$Transect
                    )
 m  # Print the map
 
