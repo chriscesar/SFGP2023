@@ -31,3 +31,9 @@ Intertidal core surveys, aimed at gathering the following:
 Benthic beam trawl surveys, aimed at gathering the following:
 * Epifaunal taxon counts and diversity analyses
 * Shrimp (*Crangon* spp.) demographics
+
+## Naming convention
+Scripts (as stored in the *R* folder) are named using the following convention:
+* Beginning with *00_* = metadata and package/function loading
+* Beginning with *01_* = data import
+* Beginning with *02_* = data processing and visualisation
