@@ -35,5 +35,5 @@ Benthic beam trawl surveys, aimed at gathering the following:
 ## Naming convention
 Scripts (as stored in the *R* folder) are named using the following convention:
 * Beginning with *00_* = metadata and package/function loading
-* Beginning with *01_* = data import
-* Beginning with *02_* = data processing and visualisation
+* Beginning with *1xx_* = data import
+* Beginning with *2xx_* = data processing and visualisation
