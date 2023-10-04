@@ -99,11 +99,28 @@ base_0 <- readOGR(paste0(gisfol,"shapes/Coast_polygon.shp")) ### UK polygon
 basedf <- fortify(base_0)
 ggplot()+geom_polygon(data=basedf, aes(x=long, y=lat, group=group),
                       fill="white", colour="black")+
-  # coord_cartesian(ylim(355000,389072))+
+  coord_cartesian(ylim(355000,389072))+
   # coord_cartesian(xlim(538691,570636),  ylim(349811,389072))+
   xlim(538691,570636)+  ylim(355000,389072)+
   geom_point(data=df0, aes(x=Eastings, y=Northings, fill=zone),
              colour="#000000",pch=21,size=5,
              inherit.aes = FALSE)+
   theme_void()#+
-  coord_map()
+
+
+subset_df <- basedf[basedf$lat >= 355000 & basedf$lat <= 389072
+                    & basedf$long >= 538691 & basedf$long <= 570636, ]
+
+ggplot(data = subset_df, aes(x = long, y = lat, group = group)) +
+  geom_polygon(fill = "white", colour = "black") +
+  # coord_cartesian(ylim = c(355000, 389072))+
+  geom_point(data=df0, aes(x=Eastings, y=Northings, fill=zone),
+             colour="#000000",pch=21,size=5,
+             inherit.aes = FALSE)
+  
+  
+  ggplot()+geom_polygon(data=basedf, aes(x=long, y=lat, group=group),
+                        fill="white", colour="black")+
+    coord_cartesian(ylim(355000,389072))
+  
+  
