@@ -10,7 +10,7 @@
 # library(maps)
 
 ### ggplot section ####
-ld_pkgs <- c("tidyverse","ggplot2","sf","rgdal","maps")
+ld_pkgs <- c("tidyverse","ggplot2","sf","rgdal","maps","ggpubr")
 vapply(ld_pkgs, library, logical(1L),
        character.only = TRUE, logical.return = TRUE)
 rm(ld_pkgs)
@@ -32,6 +32,7 @@ gisfol <- "//prodds.ntnl/Shared/AN/KFH/Groups/N_Marine/02 Projects_Tasks/05 Nat 
 
 # load data and convert to lat/long ####
 df0 <- as_tibble(openxlsx::read.xlsx("data/in/2022IntertidalPoints.xlsx",sheet = "mean"))
+df0$zone <- factor(df0$zone, levels=c("Above","Inside","Inside2","Below"))
 
 # ## convert Eastings & Northings to LatLong ####
 # df <- df0 %>%
@@ -80,49 +81,45 @@ df0 <- as_tibble(openxlsx::read.xlsx("data/in/2022IntertidalPoints.xlsx",sheet =
 
 # GGPLOT STATIC MAPS ######
 #### attempt at ggplot2 version
-# worldmap <- map_data("world")
-# ggplot()+
-#   geom_polygon(data=worldmap,
-#                aes(x = long,
-#                    y = lat,
-#                    group = group
-#                    ),
-#                fill = 'gray90',
-#                color = 'black') +
-#   coord_fixed(xlim = c(-10,3), 
-#               ylim = c(50.3, 59))+
-#   geom_point()
-
-## based on:
-# https://joshuamccrain.com/tutorials/ggplot_maps/maps_tutorial.html
 base_0 <- st_read(paste0(gisfol,"shapes/Coast_polygon.shp"))
-# base_0 <- readOGR(paste0(gisfol,"shapes/Coast_polygon.shp")) ### UK polygon
 basedf <- fortify(base_0)
+towns_pt_0 <- st_read(paste0(gisfol,"shapes/","Urban_pt_TwnCty.shp"))
+towns_pt_df <- as_tibble(fortify(towns_pt_0))
+towns_pt_df$East <- st_coordinates(towns_pt_0)[,"X"]
+towns_pt_df$North <- st_coordinates(towns_pt_0)[,"Y"]
+towns_area <- st_read(paste0(gisfol,"shapes/","Urban_areas_250k.shp"))
+
 ggplot()+
-  geom_polygon(data=basedf, aes(x=long, y=lat, group=group),
-                      fill="white", colour="black")+
-  # coord_cartesian(ylim(355000,389072))+
-  # coord_cartesian(xlim(538691,570636),  ylim(349811,389072))+
-  xlim(538691,570636)+  ylim(355000,389072)+
-  geom_point(data=df0, aes(x=Eastings, y=Northings, fill=zone),
-             colour="#000000",pch=21,size=5,
-             inherit.aes = FALSE)+
-  theme_void()#+
+  geom_sf(data=base_0)+
+  geom_sf(data=towns_area[towns_area$DESCRIPTIO == "Large Urban Area polygon",],
+          fill="darkgrey")+
+  geom_point(data=df0, aes(x=Eastings,
+                           y=Northings,
+                           fill=zone),
+             colour=1, pch = 21, size=4,
+             inherit.aes = FALSE,
+             show.legend = FALSE)+
+  geom_text(data = df0,
+            hjust=-0.25,
+            vjust=0.10,
+            aes(x=Eastings,
+                y=Northings,
+                label = Transect),
+            inherit.aes = FALSE)+
+  geom_text(data = towns_pt_df,
+            aes(x= East, y = North, label=NAME),
+            inherit.aes = FALSE,
+            hjust=1,
+            vjust=1,
+            fontface = "bold")+
+  coord_sf(xlim=c(538600,570650),
+           ylim=c(355000,389070))+
+  scale_fill_manual(values = cbPalette)+
+  labs(title="Location of intertidal transects surveyed as part of the Saltfleet to Gibraltar Point Strategy 2023")+
+  ggthemes::theme_few()+
+  theme(axis.title = element_blank(),
+        axis.text = element_blank(),
+        axis.ticks = element_blank())
 
-
-subset_df <- basedf[basedf$lat >= 355000 & basedf$lat <= 389072
-                    & basedf$long >= 538691 & basedf$long <= 570636, ]
-
-ggplot(data = subset_df, aes(x = long, y = lat, group = group)) +
-  geom_polygon(fill = "white", colour = "black") +
-  # coord_cartesian(ylim = c(355000, 389072))+
-  geom_point(data=df0, aes(x=Eastings, y=Northings, fill=zone),
-             colour="#000000",pch=21,size=5,
-             inherit.aes = FALSE)
-  
-  
-  ggplot()+geom_polygon(data=basedf, aes(x=long, y=lat, group=group),
-                        fill="white", colour="black")+
-    coord_cartesian(ylim(355000,389072))
-  
-  
+### to do:
+# add scale bar and north arrow
