@@ -95,11 +95,13 @@ df0 <- as_tibble(openxlsx::read.xlsx("data/in/2022IntertidalPoints.xlsx",sheet =
 
 ## based on:
 # https://joshuamccrain.com/tutorials/ggplot_maps/maps_tutorial.html
-base_0 <- readOGR(paste0(gisfol,"shapes/Coast_polygon.shp")) ### UK polygon
+base_0 <- st_read(paste0(gisfol,"shapes/Coast_polygon.shp"))
+# base_0 <- readOGR(paste0(gisfol,"shapes/Coast_polygon.shp")) ### UK polygon
 basedf <- fortify(base_0)
-ggplot()+geom_polygon(data=basedf, aes(x=long, y=lat, group=group),
+ggplot()+
+  geom_polygon(data=basedf, aes(x=long, y=lat, group=group),
                       fill="white", colour="black")+
-  coord_cartesian(ylim(355000,389072))+
+  # coord_cartesian(ylim(355000,389072))+
   # coord_cartesian(xlim(538691,570636),  ylim(349811,389072))+
   xlim(538691,570636)+  ylim(355000,389072)+
   geom_point(data=df0, aes(x=Eastings, y=Northings, fill=zone),
