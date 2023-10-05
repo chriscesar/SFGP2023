@@ -10,7 +10,7 @@
 # library(maps)
 
 ### ggplot section ####
-ld_pkgs <- c("tidyverse","ggplot2","sf","rgdal","maps","ggpubr")
+ld_pkgs <- c("tidyverse","ggplot2","sf","rgdal","maps","ggpubr", "ggspatial")
 vapply(ld_pkgs, library, logical(1L),
        character.only = TRUE, logical.return = TRUE)
 rm(ld_pkgs)
@@ -121,7 +121,8 @@ ggplot()+
   theme(axis.title = element_blank(),
         axis.text = element_blank(),
         axis.ticks = element_blank())+
-  ggspatial::annotation_scale(location="br", width_hint=0.5)
+  ggspatial::annotation_scale(location="br", width_hint=0.5)+
+  ggspatial::annotation_north_arrow(which_north = "grid")
 
 ### to do:
 # add north arrow
