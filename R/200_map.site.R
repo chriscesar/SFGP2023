@@ -120,7 +120,8 @@ ggplot()+
   ggthemes::theme_few()+
   theme(axis.title = element_blank(),
         axis.text = element_blank(),
-        axis.ticks = element_blank())
+        axis.ticks = element_blank())+
+  ggspatial::annotation_scale(location="br", width_hint=0.5)
 
 ### to do:
-# add scale bar and north arrow
+# add north arrow
