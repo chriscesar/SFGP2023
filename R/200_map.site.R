@@ -90,7 +90,7 @@ towns_pt_df$North <- st_coordinates(towns_pt_0)[,"Y"]
 towns_area <- st_read(paste0(gisfol,"shapes/","Urban_areas_250k.shp"))
 
 ggplot()+
-  geom_sf(data=base_0)+
+  geom_sf(data=base_0, fill = "darkolivegreen3")+
   geom_sf(data=towns_area[towns_area$DESCRIPTIO == "Large Urban Area polygon",],
           fill="darkgrey")+
   geom_point(data=df0, aes(x=Eastings,
@@ -100,11 +100,12 @@ ggplot()+
              inherit.aes = FALSE,
              show.legend = FALSE)+
   geom_text(data = df0,
-            hjust=-0.25,
-            vjust=0.10,
+            hjust=-0.275,
+            vjust=0.2,
             aes(x=Eastings,
                 y=Northings,
                 label = Transect),
+            fontface="bold",
             inherit.aes = FALSE)+
   geom_text(data = towns_pt_df,
             aes(x= East, y = North, label=NAME),
