@@ -21,9 +21,9 @@ cbPalette <- c( ### colourblind-friendly chart colour palette
   "#e79f00", #231, 159, 0
   "#009E73", #000, 158, 115
   "#9ad0f3", #154, 208, 243
+  "#CC79A7", #204, 121, 167
   "#000000", #0, 0, 0
   "#D55E00", #213, 94, 0
-  "#CC79A7", #204, 121, 167
   "#F0E442"  #240, 228, 66
 )
 
@@ -32,7 +32,7 @@ gisfol <- "//prodds.ntnl/Shared/AN/KFH/Groups/N_Marine/02 Projects_Tasks/05 Nat 
 
 # load data and convert to lat/long ####
 df0 <- as_tibble(openxlsx::read.xlsx("data/in/2022IntertidalPoints.xlsx",sheet = "mean"))
-df0$zone <- factor(df0$zone, levels=c("Above","Inside","Inside2","Below"))
+df0$zone <- factor(df0$zone, levels=c("Above","Inside","Inside2","Below","Wash"))
 
 # ## convert Eastings & Northings to LatLong ####
 # df <- df0 %>%
@@ -115,8 +115,8 @@ ggplot()+
             fontface = "bold")+
   # coord_sf(xlim=c(538600,570650),
   #          ylim=c(355000,389070))+
-  coord_sf(xlim=c(532500,563000),
-           ylim=c(344000,389070))+
+  coord_sf(xlim=c(534000,563000),
+           ylim=c(344500,389070))+
   scale_fill_manual(values = cbPalette)+
   labs(title="Location of intertidal transects surveyed as part of the Saltfleet to Gibraltar Point Strategy 2023")+
   ggthemes::theme_few()+
