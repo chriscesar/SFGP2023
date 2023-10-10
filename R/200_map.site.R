@@ -10,7 +10,8 @@
 # library(maps)
 
 ### ggplot section ####
-ld_pkgs <- c("tidyverse","ggplot2","sf","rgdal","maps","ggpubr", "ggspatial")
+ld_pkgs <- c("tidyverse","ggplot2","sf","rgdal","maps",
+             "ggpubr", "ggspatial","ggrepel")
 vapply(ld_pkgs, library, logical(1L),
        character.only = TRUE, logical.return = TRUE)
 rm(ld_pkgs)
@@ -99,14 +100,32 @@ ggplot()+
              colour=1, pch = 21, size=4,
              inherit.aes = FALSE,
              show.legend = FALSE)+
-  geom_text(data = df0,
-            hjust=-0.275,
-            vjust=0.2,
-            aes(x=Eastings,
-                y=Northings,
-                label = Transect),
-            fontface="bold",
-            inherit.aes = FALSE)+
+  # geom_text(data = df0,
+  #           hjust=-0.275,
+  #           vjust=0.2,
+  #           aes(x=Eastings,
+  #               y=Northings,
+  #               label = Transect),
+  #           fontface="bold",
+  #           inherit.aes = FALSE)+
+  geom_text_repel(data = df0,
+                  # force_pull   = 0, # do not pull toward data points
+                  # hjust=-0.275,
+                  # vjust=0,
+                  segment.colour="grey",
+                  nudge_x = 0.1,
+                  point.padding = 0.5,
+                  aes(x=Eastings,
+                      y=Northings,
+                      label = Transect),
+                  fontface="bold",
+                  force = 0.5,
+                  inherit.aes = FALSE,
+                  # min.segment.length = 0,
+                  seed = pi,
+                  # segment.size=0.5,
+                  # box.padding = 0.5,
+                  direction = "x")+
   geom_text(data = towns_pt_df,
             aes(x= East, y = North, label=NAME),
             inherit.aes = FALSE,
@@ -115,7 +134,7 @@ ggplot()+
             fontface = "bold")+
   # coord_sf(xlim=c(538600,570650),
   #          ylim=c(355000,389070))+
-  coord_sf(xlim=c(534000,563000),
+  coord_sf(xlim=c(534750,563000),
            ylim=c(344500,389070))+
   scale_fill_manual(values = cbPalette)+
   labs(title="Location of intertidal transects surveyed as part of the Saltfleet to Gibraltar Point Strategy 2023")+
@@ -124,7 +143,16 @@ ggplot()+
         axis.text = element_blank(),
         axis.ticks = element_blank())+
   ggspatial::annotation_scale(location="br", width_hint=0.5)+
-  ggspatial::annotation_north_arrow(which_north = "grid")
+  ggspatial::annotation_north_arrow(which_north = "grid", location = "bl",
+                                    pad_x = unit(0.0, "cm"),
+                                    pad_y = unit(0.5, "cm"),
+                                    height = unit(2, "cm"),
+                                    width = unit(2, "cm"),
+                                    style = north_arrow_fancy_orienteering
+                                    )
+##style = one of: north_arrow_minimal, north_arrow_fancy_orienteering,
+#         north_arrow_orienteering, north_arrow_nautical
+
 
 ### to do:
 # add north arrow
