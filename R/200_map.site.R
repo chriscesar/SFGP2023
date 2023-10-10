@@ -113,8 +113,10 @@ ggplot()+
             hjust=1,
             vjust=1,
             fontface = "bold")+
-  coord_sf(xlim=c(538600,570650),
-           ylim=c(355000,389070))+
+  # coord_sf(xlim=c(538600,570650),
+  #          ylim=c(355000,389070))+
+  coord_sf(xlim=c(532500,563000),
+           ylim=c(344000,389070))+
   scale_fill_manual(values = cbPalette)+
   labs(title="Location of intertidal transects surveyed as part of the Saltfleet to Gibraltar Point Strategy 2023")+
   ggthemes::theme_few()+
