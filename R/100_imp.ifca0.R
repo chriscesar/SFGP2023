@@ -214,3 +214,170 @@ png(file = "figs/ifca.juv&adult.ccf.bothbeds.interp.png",
     width=12*ppi, height=6*ppi, res=ppi)
 ccf(ju.interp$tonnes,ad.interp$tonnes, main = "Juvenile vs Adult", na.action = na.pass)
 dev.off()
+
+###===================##
+### Individual beds ####
+###===================##
+### normal
+ad.wr <- subset(ad, bed == "Wrangle")
+ju.wr <- subset(ju, bed == "Wrangle")
+png(file = "figs/ifca.juv&adult.Wrangle.ccf.png",
+    width=12*ppi, height=6*ppi, res=ppi)
+par(mar = c(4,4,4,0.2))
+ccf(ju.wr$tonnes,ad.wr$tonnes,
+    main = "Juvenile vs Adult\nWrangle Flats",
+    na.action = na.pass)
+dev.off()
+
+ad.fr <- subset(ad, bed == "Friskney")
+ju.fr <- subset(ju, bed == "Friskney")
+png(file = "figs/ifca.juv&adult.Friskney.ccf.png",
+    width=12*ppi, height=6*ppi, res=ppi)
+par(mar = c(4,4,4,0.2))
+ccf(ju.fr$tonnes,ad.fr$tonnes,
+    main = "Juvenile vs Adult\nFriskney Flats", na.action = na.pass)
+dev.off()
+
+### Interpolated
+ad.wr.interp <- subset(ad.interp, bed == "Wrangle")
+ju.wr.interp <- subset(ju.interp, bed == "Wrangle")
+
+png(file = "figs/ifca.juv&adult.Wrangle.ccf.interp.png",
+    width=12*ppi, height=6*ppi, res=ppi)
+par(mar = c(4,4,4,0.2))
+ccf(ju.wr.interp$tonnes,ad.wr.interp$tonnes,
+    main = "Juvenile vs Adult\nWrangle Flats", na.action = na.pass)
+dev.off()
+ad.fr.interp <- subset(ad.interp, bed == "Friskney")
+ju.fr.interp <- subset(ju.interp, bed == "Friskney")
+png(file = "figs/ifca.juv&adult.Friskney.ccf.interp.png",
+    width=12*ppi, height=6*ppi, res=ppi)
+par(mar = c(4,4,4,0.2))
+ccf(ju.fr.interp$tonnes,ad.fr.interp$tonnes,
+    main = "Juvenile vs Adult\nFriskney Flats", na.action = na.pass)
+dev.off()
+
+##both plots
+par(mfrow = c(2, 1));par(mar = c(2,4,.5,0.2))
+wr.ccf <- ccf(ju.wr$tonnes,ad.wr$tonnes, main = "", na.action = na.pass)
+fr.ccf <- ccf(ju.fr$tonnes,ad.fr$tonnes, main = "", na.action = na.pass)
+wr.ccf.interp <- ccf(ju.wr.interp$tonnes,ad.wr.interp$tonnes, main = "", na.action = na.pass)
+fr.ccf.interp <- ccf(ju.fr.interp$tonnes,ad.fr.interp$tonnes, main = "", na.action = na.pass)
+
+### normal ###
+png(file = "figs/ifca.juv&adult.each.ccf.png",
+    width=12*ppi, height=6*ppi, res=ppi)
+par(mfrow=c(2,1))
+par(mar = c(2,4,.5,0.2))
+plot(fr.ccf,lwd=3,col="#d68e00")
+abline(v=0,col="light grey",lty=4)
+text(-8.25,0.8,"Friskney",cex=2)
+plot(wr.ccf,lwd = 3,col="#008d62");
+abline(v=0,col="light grey",lty=4)
+text(-8.25,-0.37,"Wrangle",cex=2)
+dev.off()
+### significant lag at t= -1 for Friskney (a)
+## this shows a lag at t = +1, 
+## FRISKNEY: Adult stocks at t=-1 associated with juvenile stocks at t=0
+## OR that a good stock of adult cockles are a
+## reasonable predictor of juveniles the next year (t=-1)
+
+### interpolated###
+png(file = "figs/ifca.juv&adult.each.ccf.interp.png",
+    width=12*ppi, height=6*ppi, res=ppi)
+par(mfrow=c(2,1))
+par(mar = c(2,4,.5,0.2))
+plot(fr.ccf.interp,lwd=3,col="#d68e00")
+abline(v=0,col="light grey",lty=4)
+text(-8.25,0.75,"Friskney",cex=2)
+plot(wr.ccf.interp,lwd = 3,col="#008d62");
+abline(v=0,col="light grey",lty=4)
+text(-8.25,-0.37,"Wrangle",cex=2)
+dev.off()
+
+###=============##
+### ACF PLOTS ####
+###=============##
+png(file = "figs/ifca.acf.frisk.interp.png",
+    width=12*ppi, height=6*ppi, res=ppi)
+par(mfrow = c(2,1))
+par(mar = c(4, 4, 0.5, 0.2))
+acf(ad.fr.interp$tonnes,main = "", na.action = na.pass)
+text(x = 9.25, y = -0.37,"Friskney Adults", adj=0)
+acf(ju.fr.interp$tonnes,main = "", na.action = na.pass)
+text(x = 9.25, y = -0.37,"Friskney Juveniles", adj=0)
+dev.off()
+
+png(file = "figs/ifca.acf.wrang.interp.png",
+    width = 12 * ppi, height = 6 * ppi, res = ppi)
+par(mfrow = c(2,1))
+par(mar = c(4, 4, 0.5, 0.2))
+acf(ad.wr.interp$tonnes,main="", na.action = na.pass)
+text(x = 9.25, y = -0.37,"Wrangle Adults", adj=0)
+acf(ju.wr.interp$tonnes,main="", na.action = na.pass)
+text(x = 9.25, y = -0.37,"Wrangle Juveniles", adj=0)
+dev.off()
+
+######################################################
+# FROM HERE ####################
+######################################################
+
+### import sediment nourishment data ####
+vols <- read.csv(file="data/2022_nourish_vol&landings.csv", header = T)
+vols <- droplevels(vols[vols$measure == "sand nourishment",])
+vols$sand_m3 <- vols$value
+
+### subset data
+vols <- subset(vols, year<2023 & year>2003)
+tot.fr <- subset(tot, bed == "Friskney")
+tot.wr <- subset(tot, bed == "Wrangle")
+tot.fr.interp <- subset(tot.interp, bed == "Friskney")
+tot.wr.interp <- subset(tot.interp, bed == "Wrangle")
+#
+
+# sed.fr <- ccf(tot.fr$tot.cockle,vols$sand_m3)
+sed.fr <- ccf(tot.fr$tot.cockle,vols$sand_m3,na.action = na.contiguous)
+sed.wr <- ccf(tot.wr$tot.cockle,vols$sand_m3,na.action = na.contiguous)
+
+sed.fr.interp <- ccf(tot.fr.interp$tot.cockle,vols$sand_m3,na.action = na.contiguous)
+sed.wr.interp <- ccf(tot.wr.interp$tot.cockle,vols$sand_m3,na.action = na.contiguous)
+
+### +ve correlation at lag +1 for Wrangle:
+### Suggests that Sediment nourishment at time t
+### is associated with elevated cockle hauls at t+1
+
+png(file = "output/figs/ifca/ifca.ccf.totcocklVSed.png",
+    width = 12 * ppi, height = 6 * ppi, res = ppi)
+par(mfrow = c(2, 1))
+par(mar = c(4, 4, 0.5, 0.2))
+plot(sed.fr, lwd = 3, col = "#d68e00")
+abline(v = 0, col = "light grey", lty = 4)
+text(-8.75, -0.35, "Friskney", cex = 1.5) #a) = FRISKNEY
+plot(sed.wr, lwd = 3, col = "#008d62")
+abline(v = 0, col = "light grey", lty = 4)
+text(-8.75, -0.35, "Wrangle", cex = 1.5) #b) = WRANGLE
+dev.off()
+
+png(file = "output/figs/ifca/ifca.ccf.totcocklVSed.interp.png",
+    width = 12 * ppi, height = 6 * ppi, res = ppi)
+par(mfrow = c(2, 1))
+par(mar = c(4, 4, 0.5, 0.2))
+plot(sed.fr.interp, lwd = 3, col = "#d68e00")
+abline(v = 0, col = "light grey", lty = 4)
+text(-8.75, -0.35, "Friskney", cex = 1.5) #a) = FRISKNEY
+plot(sed.wr.interp, lwd = 3, col = "#008d62")
+abline(v = 0, col = "light grey", lty = 4)
+text(-8.75, -0.35, "Wrangle", cex = 1.5) #b) = WRANGLE
+dev.off()
+
+### Tidy up ####
+rm(list = ls(pattern = "^ad"))
+rm(list = ls(pattern = "^ju"))
+rm(list = ls(pattern = "^fr"))
+rm(list = ls(pattern = "^wr"))
+rm(list = ls(pattern = "^ifca"))
+rm(list = ls(pattern = "^tot"))
+rm(list = ls(pattern = "^sed"))
+rm(vols,cbPalette,ppi,cur_yr,libfolder)
+
+detach("package:tidyverse", unload = TRUE)
