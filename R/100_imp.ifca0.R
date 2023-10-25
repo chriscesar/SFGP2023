@@ -169,3 +169,48 @@ ad.interp <- subset(ifca.interp, class == "Adult")
 ju.interp <- subset(ifca.interp, class == "Juvenile")
 acf(ad.interp$tonnes, na.action = na.pass)
 acf(ju.interp$tonnes, na.action = na.pass) #no trend for 2023 dataset
+
+###=====================##
+### Cross-correlation ####
+###=====================##
+### ccf(x,y) explores the relationship between 2 time series.
+### A NEGATIVE lag=k for ccf(x,y) means that x happens and k
+### time steps later, y follows
+### A POSTIVE lag=k for cch(x,y) means that x is influenced by
+### what y was doing k steps previously
+
+###===========##
+### Both beds ####
+###===========##
+ccf(ad$tonnes,ju$tonnes, main = "Adult vs Juvenile",
+    na.action = na.pass)
+## for 2023 dataset:
+## this shows significant lags at t = +2 and t = -2.
+## >> This shows that adult stock at t=2 is associated
+## with juvenile stocks at t=0
+## >> The t = -2 shows that adult stocks at t=0 are correlated with
+## juvenile stocks 2 years hence.
+## This shows that a good stock of juveniles at t0 is a
+## reasonable predictor of adults 2 years later (t2).
+
+#### interpolated version ####
+ccf(ad.interp$tonnes,ju.interp$tonnes, main = "Adult vs Juvenile",
+    na.action = na.pass)
+
+## Also, a healthy adult stock at t0 is linked to healthy juvenile recruitment
+## at t2
+## shown also by:
+ccf(ju$tonnes,ad$tonnes, main = "Juvenile vs Adult",
+    na.action = na.pass)
+ccf(ju.interp$tonnes,ad.interp$tonnes, main = "Juvenile vs Adult",
+    na.action = na.pass)
+
+png(file = "figs/ifca.juv&adult.ccf.bothbeds.png",
+    width=12*ppi, height=6*ppi, res=ppi)
+ccf(ju$tonnes,ad$tonnes, main = "Juvenile vs Adult", na.action = na.pass)
+dev.off()
+
+png(file = "figs/ifca.juv&adult.ccf.bothbeds.interp.png",
+    width=12*ppi, height=6*ppi, res=ppi)
+ccf(ju.interp$tonnes,ad.interp$tonnes, main = "Juvenile vs Adult", na.action = na.pass)
+dev.off()
