@@ -84,14 +84,14 @@ dev.off()
               "sd.angle"=sd(as.numeric(value),na.rm=TRUE)))
 
 ### mean by station
-mn_st_23 <- subset(df, type == "angle") %>%
+mn_st_cur <- subset(df, type == "angle") %>%
   filter(.,year == cur.yr) %>% 
   group_by(transect, shore) %>% 
   summarise("mean.angle"=mean(as.numeric(value),na.rm=TRUE),
             "sd.angle"=sd(as.numeric(value),na.rm=TRUE),
             .groups = "drop")
-mn_st_23[which.min(mn_st_23$mean.angle),]
-mn_st_23[which.max(mn_st_23$mean.angle),]
+mn_st_cur[which.min(mn_st_cur$mean.angle),]
+mn_st_cur[which.max(mn_st_cur$mean.angle),]
 
 print(mean_23); print(mean_all)
 
@@ -302,10 +302,13 @@ rm(list = ls(pattern = "^df"))
 rm(list = ls(pattern = "^mean_"))
 rm(list = ls(pattern = "^cur_"))
 rm(list = ls(pattern = "^pl_"))
-rm(cbPalette, end_time,ppi,start_time,oo,mn_st_22,libfolder)
+rm(cbPalette, ppi,mn_st_cur, cbPaletteTxt, cur.yr,histdatfol, perm)
 
 ### Unload packages
 detach("package:tidyverse", unload=TRUE)
 detach("package:effects", unload=TRUE)
-detach("package:flexplot", unload=TRUE)
-
+# detach("package:flexplot", unload=TRUE)
+detach("package:ggthemes", unload=TRUE)
+detach("package:lmerTest", unload=TRUE)
+detach("package:sjPlot", unload=TRUE)
+detach("package:visreg", unload=TRUE)
