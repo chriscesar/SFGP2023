@@ -28,5 +28,4 @@ cur.yr <- 2023 #current year
 theme_set(ggthemes::theme_few())###set theme for all ggplot objects
 perm <- 9999 #number of permutations for analyses
 
-### set data folder refs
-histdatfol <- "//prodds.ntnl/Shared/AN/KFH/Groups/N_Marine/02 Projects_Tasks/05 Nat Ops_FCRM/NEAS/10NEAS Lincs shore/DATA_MASTER/"
+source("R/datfol.R")
