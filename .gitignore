@@ -6,3 +6,4 @@ data/
 .csv
 .xlsx
 .Rdat
+R/datfol.R
