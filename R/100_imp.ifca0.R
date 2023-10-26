@@ -104,7 +104,7 @@ ggplot(data = ifca, aes(x = year, y = tonnes, fill = bed))+
   xlab("") + ylab("Cockle stock estimate (tonnes)")+
   labs(title="Estimated adult and juvenile cockle stock biomasses within 2 cockle beds in the north of The Wash",
        subtitle = "Estimates provided by the Eastern Inshore Fisheries and Conservation Authority",
-       caption = "Red lines indicate loess smooth with span = 9. Ribbons indicate Standard Errors")+
+       caption = "Red lines indicate loess smooth with span = 0.9. Ribbons indicate Standard Errors")+
   theme(strip.text.x = element_text(size = 14),
         strip.text.y = element_text(size = 14),
         strip.text = element_text(face="bold"))+
@@ -127,7 +127,7 @@ ggplot(data = tot, aes(x = year, y = tot.cockle, fill = bed))+
   xlab("") + ylab("Cockle stock estimate (tonnes)")+
   labs(title="Estimated total cockle stock biomasses within 2 cockle beds in the north of The Wash",
        subtitle = "Estimates provided by the Eastern Inshore Fisheries and Conservation Authority",
-       caption = "Red lines indicate loess smooth with span = 9. Ribbons indicate Standard Errors")+
+       caption = "Red lines indicate loess smooth with span = 0.9. Ribbons indicate Standard Errors")+
   theme(strip.text.x = element_text(size = 14),
         strip.text.y = element_text(size = 14))+
   coord_cartesian(ylim=c(0, NA))
@@ -150,7 +150,7 @@ ggplot(data = tot.interp, aes(x = year, y = tot.cockle, fill = bed))+
   xlab("") + ylab("Cockle stock estimate (tonnes)")+
   labs(title="Estimated total cockle stock biomasses within 2 cockle beds in the north of The Wash",
        subtitle = "Estimates provided by the Eastern Inshore Fisheries and Conservation Authority",
-       caption = "Red lines indicate loess smooth with span = 9. Ribbons indicate Standard Errors")+
+       caption = "Red lines indicate loess smooth with span = 0.9. Ribbons indicate Standard Errors")+
   theme(strip.text.x = element_text(size = 14),
         strip.text.y = element_text(size = 14))+
   coord_cartesian(ylim=c(0, NA))
@@ -261,8 +261,10 @@ dev.off()
 par(mfrow = c(2, 1));par(mar = c(2,4,.5,0.2))
 wr.ccf <- ccf(ju.wr$tonnes,ad.wr$tonnes, main = "", na.action = na.pass)
 fr.ccf <- ccf(ju.fr$tonnes,ad.fr$tonnes, main = "", na.action = na.pass)
-wr.ccf.interp <- ccf(ju.wr.interp$tonnes,ad.wr.interp$tonnes, main = "", na.action = na.pass)
-fr.ccf.interp <- ccf(ju.fr.interp$tonnes,ad.fr.interp$tonnes, main = "", na.action = na.pass)
+wr.ccf.interp <- ccf(ju.wr.interp$tonnes,ad.wr.interp$tonnes, main = "",
+                     na.action = na.pass)
+fr.ccf.interp <- ccf(ju.fr.interp$tonnes,ad.fr.interp$tonnes, main = "",
+                     na.action = na.pass)
 
 ### normal ###
 png(file = "figs/ifca.juv&adult.each.ccf.png",
@@ -277,10 +279,12 @@ abline(v=0,col="light grey",lty=4)
 text(-8.25,-0.37,"Wrangle",cex=2)
 dev.off()
 ### significant lag at t= -1 for Friskney (a)
-## this shows a lag at t = +1, 
+## significant lag at t= +1 for Wrangle (b)
 ## FRISKNEY: Adult stocks at t=-1 associated with juvenile stocks at t=0
 ## OR that a good stock of adult cockles are a
 ## reasonable predictor of juveniles the next year (t=-1)
+### For Wrangle, adult stocks at t = +1 are associated with juveniles at t=0.
+# i.e., a strong juvenile cohort is a reasonable predictor of adults the following year
 
 ### interpolated###
 png(file = "figs/ifca.juv&adult.each.ccf.interp.png",
