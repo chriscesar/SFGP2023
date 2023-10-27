@@ -265,7 +265,10 @@ lmerTest::ls_means(com_cur_mod3.1, test.effs = "Group",pairwise = TRUE)
 sjPlot::plot_model(com_cur_mod3.1,show.values=TRUE, show.p=TRUE)
 visreg::visreg(com_cur_mod3.1)
 performance::check_posterior_predictions(com_cur_mod3.1)
-ggplot(data=com_cu, aes(x=zone1,y=value,colour=transect))+geom_point()+facet_wrap(.~shore)
+ggplot(data=com_cu, aes(x=zone1,y=value,colour=transect))+
+  # geom_point()+facet_wrap(.~shore)+
+  geom_jitter(width = 0.2)+
+  facet_wrap(.~shore)
 
 # create summary table for appendices ####
 
