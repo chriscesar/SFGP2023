@@ -136,12 +136,9 @@ AIC(ang_cur_mod1, ang_cur_mod2, ang_cur_mod3,ang_cur_mod3.1,ang_cur_mod4)
 ### ang_cur_mod3.1 is the 'best' (lowest AIC)
 visreg::visreg(ang_cur_mod3.1)
 
-ggplot(ang_cu)
-
 summary(ang_cur_mod4)
 print(ang_cur_mod3,cor=FALSE)
 anova(ang_cur_mod3)
-# ls_means(ang_cur_mod3, test.effs = "Group",pairwise = TRUE)
 lmerTest::ls_means(ang_cur_mod3.1, test.effs = "Group",pairwise = TRUE)
 sjPlot::plot_model(ang_cur_mod3,show.values=TRUE, show.p=TRUE)
 visreg::visreg(ang_cur_mod3)
