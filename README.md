@@ -24,7 +24,7 @@ Intertidal core surveys, aimed at gathering the following:
 * Infaunal diversity and multivariate analyses
 * Particle size analyses and sediment destributional statistics
 * Abiotic parameters (chemical)
-* Beach descriptors
+* Beach descriptors (beach slopes, sediment compaction, sediment descriptor, wave type)
 * Temporal trends of *Cerastoderma* fishery stocks (based on data provided by the local IFCA)
 
 ### Subtidal
