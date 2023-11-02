@@ -2,7 +2,6 @@
 ### import & analyse cone penetrometer and beach angle data
 
 # Set up ####
-# Set up ####
 ### load packages ####
 ld_pkgs <- c("tidyverse","ggthemes","lmerTest","effects",
              "sjPlot","visreg")
