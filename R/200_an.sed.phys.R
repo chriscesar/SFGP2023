@@ -32,6 +32,11 @@ df$shore <- factor(df$shore,
 cur_dat <- subset(df, year == cur.yr)
 
 ##=============###
+# Wave type   ####
+##=============###
+subset(cur_dat, type == "WaveClass")## pull out angle data
+
+##=============###
 # Beach Angle  ####
 ##=============###
 ang_cu <- subset(cur_dat, type == "angle")## pull out angle data
@@ -46,7 +51,9 @@ set.seed(pi); ggplot(data = ang_cu, aes(y = value, x = zone1,
               width = 0.3, height = 0.05,size = 3,stroke = 1,
               show.legend = FALSE)+
   scale_shape_manual(values = c(21:(length(unique(ang_cu$zone1))+21)))+
-  theme(legend.position = "bottom",#c(.5,1.02),
+  labs(title = paste0("Beach slopes recorded in the ",cur.yr," monitoring programme"))+
+  theme(plot.title = element_text(face = "bold"),
+        legend.position = "bottom",#c(.5,1.02),
         legend.direction = "horizontal",
         legend.key.size = unit(1,"cm"),#change legend size!
         legend.title=element_blank(),
@@ -66,23 +73,24 @@ set.seed(pi); ggplot(data = ang_cu, aes(y = value, x = zone1,
   guides(fill=guide_legend(nrow=1))
 dev.off()
 
-### Get summary ###
-
-#require(dplyr)
+## Get summary ####
+## mean by zone & shore: current year
 (mean_23 <- ang_cu %>%
     group_by(zone1, shore) %>%
     summarise("mean.angle"=mean(value), sd(value)))
 
+## mean by zone: current year
 (mean_23_zone <- ang_cu %>%
     group_by(zone1) %>%
     summarise("sdangle"=mean(value), sd(value)))
 
+## mean by zone & shore: all years
 (mean_all <- subset(df, type == "angle") %>%
     group_by(zone1, shore) %>%
     summarise("mean.angle"=mean(as.numeric(value), na.rm=TRUE),
               "sd.angle"=sd(as.numeric(value),na.rm=TRUE)))
 
-### mean by station
+### mean by station: current year
 mn_st_cur <- subset(df, type == "angle") %>%
   filter(.,year == cur.yr) %>% 
   group_by(transect, shore) %>% 
@@ -108,12 +116,14 @@ ggplot(data = df_tm[df_tm$type=="angle",],
   scale_fill_manual(name = "", values=cbPalette)+
   scale_x_continuous(breaks = seq(2008, 2022, by = 2))+
   xlab("Year") + ylab("Angle")+
-  theme(legend.position="none",
+  theme(plot.title = element_text(face = "bold"),
+        legend.position="none",
         strip.text.x = element_text(size = 12),
         strip.text.y = element_text(size = 12),
         strip.text = element_text(face="bold"),
         axis.title = element_text(face="bold")
-        )
+        )+
+  labs(title = paste0("Beach slopes recorded since 2008 as part of the SFGPBM programme"))
 dev.off()
 
 ## Statistical comparison ####
@@ -126,18 +136,20 @@ anova(ang_cur_mod3 <- lmerTest::lmer(value ~ zone1 + (1|transect)+(1|shore) , da
 anova(ang_cur_mod3.1 <- lmerTest::lmer(value ~ zone1 + (shore|transect) , data = ang_cu,REML=TRUE))
 anova(ang_cur_mod4 <- lmerTest::lmer(value ~ zone1*shore + (1|transect) , data = ang_cu,REML=FALSE))
 
-# flexplot::model.comparison(ang_cur_mod3,ang_cur_mod3.1,ang_cur_mod4)
-AIC(ang_cur_mod3,ang_cur_mod3.1,ang_cur_mod4)
-
-# flexplot::visualize(ang_cur_mod4)
-anova(ang_cur_mod1, ang_cur_mod2, ang_cur_mod3, ang_cur_mod4)###compare model fits
-AIC(ang_cur_mod1, ang_cur_mod2, ang_cur_mod3,ang_cur_mod3.1,ang_cur_mod4)
-### ang_cur_mod3.1 is the 'best' (lowest AIC)
+# model checking: whis is best? Lowest AIC = 'better' fit
+anova(ang_cur_mod1, ang_cur_mod2, ang_cur_mod3,ang_cur_mod3.1, ang_cur_mod4)###compare model fits
+AIC(ang_cur_mod1,ang_cur_mod2,ang_cur_mod3,ang_cur_mod3.1,ang_cur_mod4)
+# ang_cur_mod3.1 has lowest AIC
+plot(performance::compare_performance(ang_cur_mod1,
+                                 ang_cur_mod2,
+                                 ang_cur_mod3,
+                                 ang_cur_mod3.1,
+                                 ang_cur_mod4,
+                                 rank = TRUE))
 visreg::visreg(ang_cur_mod3.1)
 
-# summary(ang_cur_mod4)
-# print(ang_cur_mod3,cor=FALSE)
-# anova(ang_cur_mod3)
+# go with model ang_cur_mod3.1
+anova(ang_cur_mod3.1)
 lmerTest::ls_means(ang_cur_mod3.1, test.effs = "Group",pairwise = TRUE)
 sjPlot::plot_model(ang_cur_mod3.1,show.values=TRUE, show.p=TRUE)
 visreg::visreg(ang_cur_mod3.1)
@@ -171,7 +183,8 @@ set.seed(pi); ggplot(data = com_cu, aes(y = value, x = zone1,
   geom_jitter(aes(shape = zone1),
               width = 0.3, height = 0.05,size = 3,stroke = 1,
               show.legend = FALSE)+
-  theme(legend.position = "bottom",#c(.5,1.02),
+  theme(plot.title = element_text(face = "bold"),
+        legend.position = "bottom",#c(.5,1.02),
         legend.direction = "horizontal",
         # legend.box = "horizontal",
         legend.key.size = unit(1,"cm"),#change legend size!
@@ -190,10 +203,11 @@ set.seed(pi); ggplot(data = com_cu, aes(y = value, x = zone1,
   scale_x_discrete(breaks=NULL)+
   scale_shape_manual(values = c(21:(length(unique(com_cu$zone1))+21)))+
   facet_wrap(~shore)+
-  guides(fill=guide_legend(nrow=1))
+  guides(fill=guide_legend(nrow=1))+
+  labs(title = paste0("Sediment compaction recorded in the ",cur.yr," monitoring programme"))
 dev.off()
 
-### Get summary ###
+## Get summary ####
 #require(dplyr)
 (mean_cur <- com_cu %>%
     group_by(zone1, shore) %>%
@@ -235,11 +249,13 @@ ggplot(data = df_tm[df_tm$type=="cone",],
   scale_fill_manual(name = "", values=cbPalette)+
   scale_x_continuous(breaks = seq(2008, 2022, by = 2))+
   xlab("Year") + ylab("Cone index")+
-  theme(legend.position="none",
+  theme(plot.title = element_text(face = "bold"),
+        legend.position="none",
         strip.text.x = element_text(size = 12),
         strip.text.y = element_text(size = 12),
         strip.text = element_text(face="bold"),
-        axis.title = element_text(face="bold"))
+        axis.title = element_text(face="bold"))+
+  labs(title = paste0("Sediment compaction recorded since 2008 as part of the SFGPBM programme"))
 dev.off()
 
 ## Statistical comparison ####
@@ -252,11 +268,11 @@ anova(com_cur_mod3 <- lmerTest::lmer(value ~ zone1 + (1|transect) + (1|shore) , 
 anova(com_cur_mod3.1 <- lmerTest::lmer(value ~ zone1 + (shore|transect) , data = com_cu,REML=TRUE))
 anova(com_cur_mod3.2 <- lmerTest::lmer(value ~ zone1*shore + (shore|transect) , data = com_cu,REML=TRUE))
 anova(com_cur_mod4 <- lmerTest::lmer(value ~ zone1*shore + (1|transect), data = com_cu,REML=FALSE))
-# AIC(com_cur_mod1,com_cur_mod2,com_cur_mod3,com_cur_mod3.1,com_cur_mod4)
 
 anova(com_cur_mod1,com_cur_mod2,com_cur_mod3,com_cur_mod3.1,com_cur_mod4)
 AIC(com_cur_mod1,com_cur_mod2,com_cur_mod3,com_cur_mod3.1,com_cur_mod4)
 ### Lowest AIC = com_cur_mod3.1
+
 summary(com_cur_mod3.1)
 print(com_cur_mod3.1,cor=FALSE)
 anova(com_cur_mod3.1)
