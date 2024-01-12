@@ -3,7 +3,7 @@
 
 # Set up ####
 ### load packages ####
-ld_pkgs <- c("tidyverse")
+ld_pkgs <- c("tidyverse","readxl")
 vapply(ld_pkgs, library, logical(1L),
        character.only = TRUE, logical.return = TRUE)
 rm(ld_pkgs)
@@ -11,122 +11,78 @@ rm(ld_pkgs)
 ### load metadata ####
 source("R/00_meta_setMeta.R")
 
-### load data ####
-df0 <- as_tibble(read.csv(paste0(fol,"inf_ts_longRAW_USE.csv")))
+# copy & load data ####
 
-#########################################################################
-#OLD CODE (FOR REFERENCE)####
-#### prep.inf.R ####
-# ##### prep infauna ts data
-# 
+file_name <- "inf_ts_longRAW_USE.xlsx"
 
-# # ### save raw data ####
-# # ptm <- proc.time()
-# # write.csv(df_abund,file="data/processed/csv/inf.abund.ts.RAW.csv",row.names=FALSE)
-# # saveRDS(df_abund,file="data/processed/R/inf.abund.ts.RAW.Rdat")
-# # write.csv(df_noZero,file="data/processed/csv/inf.abund.ts.RAW.noZero.csv",row.names=FALSE)
-# # saveRDS(df_noZero,file="data/processed/R/inf.abund.ts.RAW.noZero.Rdat")
-# # proc.time() - ptm
-# 
-# #### load previously imported data ####
-# df_abund0 <- readRDS("data/processed/R/inf.abund.ts.RAW.Rdat")
-# #df_noZero <- readRDS("data/processed/R/inf.abund.ts.RAW.noZero.Rdat")
-# 
-# df_abund <- df_abund0
-# 
-# ### replace "." with space in taxon names
-# df_abund$taxonRAW <- df_abund$taxon
-# df_abund$taxon <- gsub(".", " ", df_abund$taxon, fixed=TRUE)
-# 
-# ### sort out capitalisation
-# source("R/functions/capitalise.R")
-# df_abund$taxon <- capitalise(df_abund$taxon)
-# rm(capitalise)
-# 
-# ### remove taxa flagged as fragments
-# df_abund <- df_abund %>% 
-#   filter(.,!str_detect(taxon,"fragment"))
-# 
-# # xx <- df_abund0 %>% 
-# #   filter(.,str_detect(taxon,"ragment"))
-# 
-# ### remove text after '#' character and trim whitespace
-# df_abund$taxon<-trimws(gsub("#.*","",df_abund$taxon))
-# ###throw out NA's
-# df_abund <- df_abund %>% 
-#   filter(!is.na(abundance))
-# 
-# ### save data & export taxon names for matching
-# # txnm <- unique(df_abund$taxon)
-# # write.csv(txnm,file="data/processed/csv/inf.ts.tax.csv",row.names=FALSE)
-# 
-# ### import correct taxon names & append ####
-# tx <- openxlsx::read.xlsx("data/processed/csv/inf.ts.tax.xlsx",sheet="tax.out")
-# df_abund <- left_join(df_abund,tx,by="taxon")
-# rm(tx)
-# 
-# ### drop 'inappropriate' variables ####
-# ### trim
-# df_abund <- df_abund %>% 
-#   filter(.,!str_detect(taxon,"Anthropogenic")) %>% ###drop 'anthropogenics'
-#   filter(.,!str_detect(taxon,"Plastic")) %>%  ### drop 'plastics'
-#   filter(., is.na(Kingdom) | Kingdom == "Animalia") %>% ## keep only fauna & 'no biota'
-#   filter(., taxon_USE != "del")
-# 
-# ### drop nuicance/non-marine taxa
-# df_abund <- df_abund %>% 
-#   filter(., is.na(Class) | Class != "Insecta") %>% ###drop Insects
-#   filter(., taxon_USE != "Animalia") %>% ###drop taxa flagged only as Animalia
-#   filter(., is.na(Class) | Class != "Arachnida") ### drop spiders 156680
-# #write.csv(df_abund,file="data/processed/csv/inf.abund.ts.longForTidying.csv",row.names = FALSE)
-# 
-# ### sum duplicated taxa
-# df_abund <- df_abund %>% 
-#   filter(!is.na(abundance)) %>% 
-#   group_by(.,tranShoreRepMeshYr,transect,shore,rep,core_area_m2,mesh,year,taxon,
-#            taxonRAW,taxon_USE,AphiaID,Match.type,ScientificName,AphiaID_accepted,
-#            ScientificName_accepted,Kingdom,Phylum,Class,Order,Family,Genus,Species,
-#            isMarine,isBrackish,isFresh,isTerrestrial) %>% 
-#   summarise(.,abundance=sum(abundance)) %>% ungroup()
-# 
-# ### save files
-# # write.csv(df_abund,file="data/processed/csv/inf.abund.ts.long.tidy.rep.csv",row.names=FALSE)
-# # df_abund <- read.csv("data/processed/csv/inf.abund.ts.long.tidy.rep.csv")
-# 
-# ### calculate means across replicates & widen
-# #drp <- c("rep","tranShoreRepMeshYr")### cols to drop when summarising
-# 
-# #### remove unneccessary columns, widen, fill in with zeroes,
-# ###re-lengthen remove Rep, calculate means, rewiden
-# df_abund_w <- df_abund %>% 
-#   select(., -AphiaID,-taxonRAW,-taxon,-Match.type,-ScientificName,
-#          -AphiaID_accepted,-ScientificName_accepted,-Kingdom,-Phylum,-Class,-Order,
-#          -Family,-Genus,-Species,-isMarine,-isBrackish,-isFresh,-isTerrestrial) %>% ##drop cols
-#   group_by(.,tranShoreRepMeshYr,transect,shore,rep,core_area_m2,mesh,year,taxon_USE) %>% 
-#   summarise(.,abundance=sum(abundance)) %>% ungroup() %>% ### sum to remove duplicate taxon names
-#   ### widen and fill gaps with 0:
-#   pivot_wider(.,names_from=taxon_USE,values_from=abundance,values_fill=list(abundance = 0)) %>% 
-#   ### re-lengthen for summarising:
-#   pivot_longer(.,8:ncol(.),names_to="taxon",values_to="abundance") %>% 
-#   select(.,-rep,-tranShoreRepMeshYr) %>% ###drop 'rep' and code variables
-#   ### calculate mean across replicates:
-#   group_by(.,transect,shore,core_area_m2, mesh,year,taxon) %>%
-#   summarise(.,abundance=mean(abundance)) %>% ungroup() %>%###calc mean across replicates
-#   ##re-widen:
-#   pivot_wider(.,names_from=taxon,values_from=abundance) %>% ungroup() %>% 
-#   relocate(.,"No biota", .after=year)
-# 
-# 
-# df_abund_w$yr.trn.sh.meth <- paste0(df_abund_w$year,".",df_abund_w$transect,".",df_abund_w$shore,
-#                                     ".",df_abund_w$mesh)
-# df_abund_w <- df_abund_w %>% 
-#   relocate(.,yr.trn.sh.meth)### move to start
-# 
-# ### save & tidy ####
-# write.csv(df_abund_w,file="data/processed/csv/inf.abund.ts.csv",row.names = FALSE)
-# saveRDS(df_abund_w,file="data/processed/R/inf.abund.ts.Rdat")
-# 
-# ####
+# Set the source and destination file paths
+source_file <- paste0(fol,file_name)
+destination_file <- paste0("data/in/",file_name)
+
+# Check if the file exists in the data folder
+if (!file.exists(destination_file)) {
+  # If not, copy the file from the source folder to the data folder
+  file.copy(source_file, destination_file)
+  cat("File copied successfully.\n")
+} else {
+  # If the file already exists in the data folder, do nothing
+  cat("File already exists in the data folder.\n")
+}
+
+df0 <- as_tibble(read_xlsx(destination_file,
+                           sheet = "dat_all"))
+
+# drop nuicance/non-marine taxa ####
+df <- df0 %>%
+  filter(., units != "flag_fragments") %>% # remove taxa flagged as fragments
+  filter(., units != "flag_plants") %>% # remove taxa flagged as plants
+  filter(., is.na(Order) | Order != "Diptera") %>% ###drop flies
+  filter(., is.na(Order) | Order != "Hemiptera") %>% ###drop bugsLepidoptera
+  filter(., is.na(Order) | Order != "Lepidoptera") %>% ###drop butterflies/moths
+  filter(., is.na(Order) | Order != "Hymenoptera") %>% ###drop ants/bees/wasps
+  filter(., taxonUSE != "Animalia") ###drop taxa flagged only as Animalia
+
+# sum duplicated taxa ####
+df <- df %>%
+  filter(!is.na(abundance)) %>%
+  group_by(across(c(!abundance,!taxonReported))) %>% 
+    # everything(), !(.x %in% c(abundance, taxonReported)))) %>% 
+  summarise(.,abundance=sum(abundance)) %>% ungroup()
+
+# calculate means across replicates and widen data for further analysis ####
+
+dfw <- df %>% 
+  ## remove superfluous cols
+  dplyr::select(.,
+                -taxonReported,
+                -units,
+                -Kingdom,
+                -Phylum,
+                -Class,
+                -Order,
+                -Family,
+                -Genus,
+                -Species,
+                -Comment
+                ) %>% 
+  ### widen and fill gaps with 0:
+  pivot_wider(.,
+                names_from=taxonUSE,
+                values_from=abundance,
+                values_fill=list(abundance = 0)) %>%
+  ### re-lengthen for summarising:
+    pivot_longer(.,13:ncol(.),names_to="taxon",values_to="abundance") %>%
+    select(.,-rep,-yr.trn.sh.meth.rep) %>% ###drop 'rep' and code variables
+  ### calculate mean across replicates:
+  group_by(across(c(!abundance))) %>%
+  summarise(.,abundance=mean(abundance, na.rm = TRUE)) %>%
+  ungroup() %>%
+  ##re-widen:
+  pivot_wider(.,names_from=taxon,values_from=abundance) %>% ungroup()
+
+# TIDY UP ####
 # rm(list = ls(pattern = "^df"))
-# rm(libfolder, ptm,txnm)
-# detach(package:tidyverse, unload=TRUE)
+rm(list = ls(pattern = "^cb"))
+rm(cur.yr,destination_file,file_name,fol,gisfol,perm,ppi,source_file)
+detach(package:readxl, unload=TRUE)
+detach(package:tidyverse, unload=TRUE)
