@@ -8,6 +8,7 @@ vapply(ld_pkgs, library, logical(1L),
        character.only = TRUE, logical.return = TRUE)
 rm(ld_pkgs)
 source("R/00_datfol.R")
+ppi <- 300
 cbPalette <- c( ### colourblind-friendly chart colour palette
   # comments reflect Red/Green/Blue equivalents
   "#0072B2", #000, 114, 178
@@ -37,6 +38,8 @@ towns_pt_df$East <- st_coordinates(towns_pt_0)[,"X"]
 towns_pt_df$North <- st_coordinates(towns_pt_0)[,"Y"]
 towns_area <- st_read(paste0(gisfol,"shapes/","Urban_areas_250k.shp"))
 
+png(file = "output/figs/siteMap.png",
+    width=8*ppi, height=12*ppi, res=ppi)
 ggplot()+
   geom_sf(data = base_0, fill = "darkolivegreen4") +
   geom_sf(data = towns_area[towns_area$DESCRIPTIO == "Large Urban Area polygon",],
@@ -44,14 +47,18 @@ ggplot()+
   geom_point(data = df0,
              aes(x = Eastings,
                  y = Northings,
-                 fill = zone),
-             colour = 1, pch = 21, size = 4, 
+                 fill = zone,
+                 shape = Tag),
+             colour = 1,
+             # pch = 21,
+             size = 4, 
              inherit.aes = FALSE,
              show.legend = FALSE)+
   geom_text_repel(data = df0,
                  segment.colour="grey",
                   nudge_x = 0.1,
-                  point.padding = 0.5,
+                  # point.padding = 0.5,
+                 point.padding = 4.5,
                  aes(x = Eastings,
                      y = Northings,
                      label = Transect), 
@@ -69,7 +76,8 @@ ggplot()+
   coord_sf(xlim = c(534750, 563000),
            ylim = c(344500, 389070))+
   scale_fill_manual(values = cbPalette)+
-  labs(title = "Location of intertidal transects surveyed as part of the Saltfleet to Gibraltar Point Strategy 2023")+
+  scale_shape_manual(values=c(3,21))+
+  labs(title = "Location of intertidal transects surveyed as part of the Saltfleet to Gibraltar Point\n Strategy 2023")+
   ggthemes::theme_few()+
   theme(axis.title = element_blank(),
         axis.text = element_blank(),
@@ -82,6 +90,7 @@ ggplot()+
                                     width = unit(2, "cm"),
                                     style = north_arrow_fancy_orienteering
                                     )
+dev.off()
 
 # to do: ####
 ## add WA proposed samples
@@ -91,7 +100,7 @@ ggplot()+
 rm(list = ls(pattern = "^base"))
 rm(list = ls(pattern = "^town"))
 rm(list = ls(pattern = "^df"))
-rm(cbPalette, fol, gisfol)
+rm(cbPalette, fol, gisfol,ppi)
 
 detach(package:ggrepel, unload=TRUE)
 detach(package:ggspatial, unload=TRUE)
