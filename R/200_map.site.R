@@ -38,6 +38,20 @@ towns_pt_df$East <- st_coordinates(towns_pt_0)[,"X"]
 towns_pt_df$North <- st_coordinates(towns_pt_0)[,"Y"]
 towns_area <- st_read(paste0(gisfol,"shapes/","Urban_areas_250k.shp"))
 
+## load designated shapes ####
+# sac #
+sh_sac0 <- st_read(paste0(gisfol,"shapes/","sac_10k.shp"))
+sh_sac <- fortify(sh_sac0)
+
+# spa #
+sh_spa0 <- st_read(paste0(gisfol,"shapes/","Spa_10k.shp"))
+sh_spa <- fortify(sh_spa0)
+
+# Ramsar #
+sh_rams0 <- st_read(paste0(gisfol,"shapes/","Ramsar_10k.shp"))
+sh_rams <- fortify(sh_rams0)
+
+
 png(file = "output/figs/siteMap.png",
     width=8*ppi, height=12*ppi, res=ppi)
 ggplot()+
