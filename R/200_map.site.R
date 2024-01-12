@@ -7,7 +7,7 @@ ld_pkgs <- c("tidyverse","ggplot2","sf","rgdal","maps",
 vapply(ld_pkgs, library, logical(1L),
        character.only = TRUE, logical.return = TRUE)
 rm(ld_pkgs)
-
+source("R/00_datfol.R")
 cbPalette <- c( ### colourblind-friendly chart colour palette
   # comments reflect Red/Green/Blue equivalents
   "#0072B2", #000, 114, 178
@@ -21,8 +21,6 @@ cbPalette <- c( ### colourblind-friendly chart colour palette
 )
 
 ### GIS folder
-gisfol <- "//prodds.ntnl/Shared/AN/KFH/Groups/N_Marine/02 Projects_Tasks/05 Nat Ops_FCRM/NEAS/10NEAS Lincs shore/GIS/"
-
 # load data and convert to lat/long ####
 df0 <- as_tibble(openxlsx::read.xlsx("data/in/2022IntertidalPoints.xlsx",
                                      sheet = "mean"))
@@ -40,7 +38,7 @@ towns_pt_df$North <- st_coordinates(towns_pt_0)[,"Y"]
 towns_area <- st_read(paste0(gisfol,"shapes/","Urban_areas_250k.shp"))
 
 ggplot()+
-  geom_sf(data = base_0, fill = "darkolivegreen3") +
+  geom_sf(data = base_0, fill = "darkolivegreen4") +
   geom_sf(data = towns_area[towns_area$DESCRIPTIO == "Large Urban Area polygon",],
           fill="darkgrey")+
   geom_point(data = df0,
@@ -50,14 +48,6 @@ ggplot()+
              colour = 1, pch = 21, size = 4, 
              inherit.aes = FALSE,
              show.legend = FALSE)+
-  # geom_text(data = df0,
-  #           hjust=-0.275,
-  #           vjust=0.2,
-  #           aes(x=Eastings,
-  #               y=Northings,
-  #               label = Transect),
-  #           fontface="bold",
-  #           inherit.aes = FALSE)+
   geom_text_repel(data = df0,
                  segment.colour="grey",
                   nudge_x = 0.1,
@@ -75,7 +65,7 @@ ggplot()+
             inherit.aes = FALSE,
             hjust = 1,
             vjust = 1, 
-            fontface = "bold")+
+            fontface = "bold.italic")+
   coord_sf(xlim = c(534750, 563000),
            ylim = c(344500, 389070))+
   scale_fill_manual(values = cbPalette)+
@@ -92,3 +82,22 @@ ggplot()+
                                     width = unit(2, "cm"),
                                     style = north_arrow_fancy_orienteering
                                     )
+
+# to do: ####
+## add WA proposed samples
+## produce version with WFD WBs & protected sites ###
+
+# Tidy up ####
+rm(list = ls(pattern = "^base"))
+rm(list = ls(pattern = "^town"))
+rm(list = ls(pattern = "^df"))
+rm(cbPalette, fol, gisfol)
+
+detach(package:ggrepel, unload=TRUE)
+detach(package:ggspatial, unload=TRUE)
+detach(package:ggpubr, unload=TRUE)
+detach(package:maps, unload=TRUE)
+detach(package:rgdal, unload=TRUE)
+detach(package:sf, unload=TRUE)
+detach(package:ggplot2, unload=TRUE)
+detach(package:tidyverse, unload=TRUE)
