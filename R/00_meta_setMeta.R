@@ -10,6 +10,7 @@ cbPalette <- c( ### colourblind-friendly chart colour palette
   "#000000", #0, 0, 0
   "#D55E00", #213, 94, 0
   "#CC79A7", #204, 121, 167
+  "#DEAAC6", #222, 170, 198 - The Wash
   "#F0E442"  #240, 228, 66
   )
 cbPaletteTxt <- c(
