@@ -84,5 +84,6 @@ dfw <- df %>%
 # rm(list = ls(pattern = "^df"))
 rm(list = ls(pattern = "^cb"))
 rm(cur.yr,destination_file,file_name,fol,gisfol,perm,ppi,source_file)
+
 detach(package:readxl, unload=TRUE)
 detach(package:tidyverse, unload=TRUE)
