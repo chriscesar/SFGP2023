@@ -1,4 +1,5 @@
-# 200_an.inf0.R
+# 200_an.inf0.R ####
+### Multivariate analysis of 2022 intertidal invertebrate data
 
 ## load data from long term
 source("R/100_imp.inf0.R")
@@ -9,7 +10,8 @@ ld_pkgs <- c("tidyverse","ggplot2","vegan","ggdendro",#data vis
              "ggtext",#data vis
              "ggpp",
              "mvabund",
-             "Hmsc"
+             "Hmsc",
+             "ggpubr"
              )
 vapply(ld_pkgs, library, logical(1L),
        character.only = TRUE, logical.return = TRUE)
@@ -196,12 +198,12 @@ summary(mod2)
 
 ### create 'boxes' of data for analysis ###
 ### Y: Species occurrence ####
-Y <- as.matrix(df.cur[, -c(1:9)])
+Y <- as.matrix(df.cur.w.trm[, -c(1:9)])
 Y[Y>0] <- 1 #convert to presence-absence
 
 #### study design ####
 #Variable selection
-studyDesign <- df.cur[, c(3,4)]
+studyDesign <- df.cur.w.trm[, c(2,3)]
 studyDesign <- data.frame(studyDesign)
 studyDesign$transect <- as.factor(studyDesign$transect)
 studyDesign$shore <- as.factor(studyDesign$shore)
@@ -244,18 +246,21 @@ saveRDS(mod_HMSC, file = paste0("output/models/mod_HMSC","_smp",samples,
                                 ".Rdata"))
 proc.time() - ptm
 mod_HMSC <- readRDS("output/models/mod_HMSC_smp1000_thn10_trns5000_chn3.Rdata")
+# mod_HMSC <- readRDS("output/models/mod_HMSC_smp1000_thn50_trns25000_chn3.Rdata")
 
 ## investigate model outputs ####
 mpost <- convertToCodaObject(mod_HMSC) # model diagnostics/convergence
 preds <- computePredictedValues(mod_HMSC) # model performance
 MF <- evaluateModelFit(hM=mod_HMSC, predY = preds) # r2, etc
 VP <- computeVariancePartitioning(mod_HMSC) # variance partitioning
+### to check ####
+#VP warning:
+#In cor(lbeta[[i]][k, ], lmu[[i]][k, ]) : the standard deviation is zero
 
 ess.beta <- effectiveSize(mpost$Beta) %>%
   as_tibble() %>% dplyr::rename(ess_beta=value)
 psrf.beta <- gelman.diag(mpost$Beta, multivariate = FALSE)$psrf %>%
   as_tibble() %>% dplyr::rename(psrf_beta = "Point est.")
-
 
 diag_all <- ggarrange(ggplot(ess.beta,aes(x=ess_beta))+
                         geom_histogram()+
@@ -264,9 +269,9 @@ diag_all <- ggarrange(ggplot(ess.beta,aes(x=ess_beta))+
                         geom_histogram()+
                         geom_vline(xintercept = 1.001, col=2)+
                         xlab("Gelman diagnostic"), align = "v")+
-  ggtitle("All plots")
+  ggtitle("All plots");diag_all
 
-MF$TjurR2 %>% mean(na.rm=TRUE)
+MF$TjurR2 %>% mean(na.rm=TRUE)*100
 
 # species niches
 postBeta <- getPostEstimate(mod_HMSC, parName = "Beta")
