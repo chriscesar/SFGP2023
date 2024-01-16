@@ -151,8 +151,7 @@ ano_intinf <- adonis2(temp.ord.run ~ df.cur$zone1,
 saveRDS(ano_intinf,file="output/models/intinfadonis2023.Rdat")
 (ano_intinf <- readRDS(file="output/models/intinfadonis2023.Rdat"))
 ### is P <0.05?
-ano_intinf[["Pr(>F)"]][1] <0.05 ###NOPE!
-
+ano_intinf[["Pr(>F)"]][1] <0.05 ###Is P<0.05?
 
 ###output model summaries
 ###full model
@@ -188,103 +187,112 @@ summary(mod2)
 # saveRDS(anova_mod2,file="output/models/inf.2023.mvabund.Rdat")
 (res.binary <- readRDS("output/models/inf.2023.mvabund.Rdat"))
 
-##############
-# HMSC version ####
-
-## see here:
-#https://www.youtube.com/watch?v=u07eFE3Uqtg&t=730s
-#and here:
-#https://www.r-bloggers.com/2020/06/guide-to-using-the-hmsc-package-for-the-production-of-joint-species-distribtuion-models/
-
-### create 'boxes' of data for analysis ###
-### Y: Species occurrence ####
-Y <- as.matrix(df.cur.w.trm[, -c(1:9)])
-Y[Y>0] <- 1 #convert to presence-absence
-
-#### study design ####
-#Variable selection
-studyDesign <- df.cur.w.trm[, c(2,3)]
-studyDesign <- data.frame(studyDesign)
-studyDesign$transect <- as.factor(studyDesign$transect)
-studyDesign$shore <- as.factor(studyDesign$shore)
-
-#Variable structuring
-transect <- HmscRandomLevel(units = studyDesign$transect)
-shore <- HmscRandomLevel(units = studyDesign$shore)
-(ranlevels <- list(transect=transect,shore=shore))
-
-### X: Environmental ####
-X <- as.data.frame(df.cur$zone1)
-X$zone1 <- X$`df.cur$zone1`;X$`df.cur$zone1` <- NULL
-X$zone1 <- as.factor(X$zone1)
-XFormula <- ~zone1
-
-## create & run model ####
-# create model
-simul <- Hmsc(Y=Y, XData = X,
-              XFormula=XFormula,
-              studyDesign = studyDesign,
-              ranLevels = ranlevels,
-              distr = "probit")
-
-# Run model
-thin <- 10
-samples <- 1000
-nChains <- 3
-transient <- ceiling(thin*samples*.5)
-
-ptm <- proc.time()
-mod_HMSC <- sampleMcmc(simul,
-                       samples = samples,
-                       thin = thin,
-                       transient = transient,
-                       nChains = nChains#,
-                       # nParallel = nChains
-                       )
-saveRDS(mod_HMSC, file = paste0("output/models/mod_HMSC","_smp",samples,
-                                "_thn",thin,"_trns",transient,"_chn",nChains,
-                                ".Rdata"))
-proc.time() - ptm
-mod_HMSC <- readRDS("output/models/mod_HMSC_smp1000_thn10_trns5000_chn3.Rdata")
-# mod_HMSC <- readRDS("output/models/mod_HMSC_smp1000_thn50_trns25000_chn3.Rdata")
-
-## investigate model outputs ####
-mpost <- convertToCodaObject(mod_HMSC) # model diagnostics/convergence
-preds <- computePredictedValues(mod_HMSC) # model performance
-MF <- evaluateModelFit(hM=mod_HMSC, predY = preds) # r2, etc
-VP <- computeVariancePartitioning(mod_HMSC) # variance partitioning
-### to check ####
-#VP warning:
-#In cor(lbeta[[i]][k, ], lmu[[i]][k, ]) : the standard deviation is zero
-
-ess.beta <- effectiveSize(mpost$Beta) %>%
-  as_tibble() %>% dplyr::rename(ess_beta=value)
-psrf.beta <- gelman.diag(mpost$Beta, multivariate = FALSE)$psrf %>%
-  as_tibble() %>% dplyr::rename(psrf_beta = "Point est.")
-
-diag_all <- ggarrange(ggplot(ess.beta,aes(x=ess_beta))+
-                        geom_histogram()+
-                        xlab("Effective sample size"),
-                      ggplot(psrf.beta,aes(x=psrf_beta))+
-                        geom_histogram()+
-                        geom_vline(xintercept = 1.001, col=2)+
-                        xlab("Gelman diagnostic"), align = "v")+
-  ggtitle("All plots");diag_all
-
-MF$TjurR2 %>% mean(na.rm=TRUE)*100
-
-# species niches
-postBeta <- getPostEstimate(mod_HMSC, parName = "Beta")
-
-plotVariancePartitioning(mod_HMSC, VP=VP, las=2, horiz=TRUE)
-plotBeta(mod_HMSC,post=postBeta, param = "Support", #supportLevel=0.95,
-         split = .4, spNamesNumbers = c(T,F))
-
-##############################################################
-# OLD CODE ####
-##############################################################
-# load & format long ts data ####
-### summarise across replicates & widen
-
+# ##############
+# # HMSC version ####
+# # To Revisit ####
+# ## see here:
+# #https://www.youtube.com/watch?v=u07eFE3Uqtg&t=730s
+# #and here:
+# #https://www.r-bloggers.com/2020/06/guide-to-using-the-hmsc-package-for-the-production-of-joint-species-distribtuion-models/
 # 
-
+# ### create 'boxes' of data for analysis ###
+# ### Y: Species occurrence ####
+# Y <- as.matrix(df.cur.w.trm[, -c(1:9)])
+# Y[Y>0] <- 1 #convert to presence-absence
+# 
+# #### study design ####
+# #Variable selection
+# studyDesign <- df.cur.w.trm[, c(2,3)]
+# studyDesign <- data.frame(studyDesign)
+# studyDesign$transect <- as.factor(studyDesign$transect)
+# studyDesign$shore <- as.factor(studyDesign$shore)
+# ns <- ncol(df.cur.w.trm %>% dplyr::select(.,-c(year:yr.trn.sh.meth)))
+# 
+# #Variable structuring
+# transect <- HmscRandomLevel(units = studyDesign$transect)
+# shore <- HmscRandomLevel(units = studyDesign$shore)
+# (ranlevels <- list(transect=transect,shore=shore))
+# 
+# ### X: Environmental ####
+# X <- as.data.frame(df.cur$zone1)
+# X$zone1 <- X$`df.cur$zone1`;X$`df.cur$zone1` <- NULL
+# X$zone1 <- as.factor(X$zone1)
+# XFormula <- ~zone1
+# 
+# ## create & run model ####
+# # create model
+# simul <- Hmsc(Y=Y, XData = X,
+#               XFormula=XFormula,
+#               studyDesign = studyDesign,
+#               ranLevels = ranlevels,
+#               distr = "probit")
+# 
+# # Run model
+# thin <- 10
+# samples <- 1000
+# nChains <- 3
+# transient <- ceiling(thin*samples*.5)
+# 
+# # ptm <- proc.time()
+# # mod_HMSC <- sampleMcmc(simul,
+# #                        samples = samples,
+# #                        thin = thin,
+# #                        transient = transient,
+# #                        nChains = nChains#,
+# #                        # nParallel = nChains
+# #                        )
+# # saveRDS(mod_HMSC, file = paste0("output/models/mod_HMSC","_smp",samples,
+# #                                 "_thn",thin,"_trns",transient,"_chn",nChains,
+# #                                 ".Rdata"))
+# # proc.time() - ptm
+# mod_HMSC <- readRDS("output/models/mod_HMSC_smp1000_thn10_trns5000_chn3.Rdata")
+# # mod_HMSC <- readRDS("output/models/mod_HMSC_smp1000_thn50_trns25000_chn3.Rdata")
+# 
+# ## investigate model outputs ####
+# mpost <- convertToCodaObject(mod_HMSC) # model diagnostics/convergence
+# preds <- computePredictedValues(mod_HMSC) # model performance
+# MF <- evaluateModelFit(hM=mod_HMSC, predY = preds) # r2, etc
+# VP <- computeVariancePartitioning(mod_HMSC) # variance partitioning
+# ### to check ####
+# #VP warning:
+# #In cor(lbeta[[i]][k, ], lmu[[i]][k, ]) : the standard deviation is zero
+# 
+# ess.beta <- effectiveSize(mpost$Beta) %>%
+#   as_tibble() %>% dplyr::rename(ess_beta=value)
+# psrf.beta <- gelman.diag(mpost$Beta, multivariate = FALSE)$psrf %>%
+#   as_tibble() %>% dplyr::rename(psrf_beta = "Point est.")
+# 
+# diag_all <- ggarrange(ggplot(ess.beta,aes(x=ess_beta))+
+#                         geom_histogram()+
+#                         xlab("Effective sample size"),
+#                       ggplot(psrf.beta,aes(x=psrf_beta))+
+#                         geom_histogram()+
+#                         geom_vline(xintercept = 1.001, col=2)+
+#                         xlab("Gelman diagnostic"), align = "v")+
+#   ggtitle("All plots");diag_all
+# 
+# hist(ess.gamma <- effectiveSize(mpost$Gamma))
+# hist(psrf.gamma <- gelman.diag(mpost$Gamma, multivariate=FALSE)$psrf)
+# 
+# sppairs = matrix(sample(x = 1:ns^2, size = 100))
+# tmp = mpost$Omega[[1]]
+# for (chain in 1:length(tmp)){
+#   tmp[[chain]] = tmp[[chain]][,sppairs]
+# }
+# ess.omega = effectiveSize(tmp)
+# psrf.omega = gelman.diag(tmp, multivariate=FALSE)$psrf
+# hist(ess.omega)
+# hist(psrf.omega)
+# 
+# preds = computePredictedValues(simul)
+# MF = evaluateModelFit(hM=m, predY=preds)
+# hist(MF$R2, xlim = c(0,1), main=paste0("Mean = ", round(mean(MF$R2),2)))
+# 
+# MF$TjurR2 %>% mean(na.rm=TRUE)*100
+# 
+# # species niches
+# postBeta <- getPostEstimate(mod_HMSC, parName = "Beta")
+# 
+# plotVariancePartitioning(mod_HMSC, VP=VP, las=2, horiz=TRUE)
+# plotBeta(mod_HMSC,post=postBeta, param = "Support", #supportLevel=0.95,
+#          split = .4, spNamesNumbers = c(T,F))
