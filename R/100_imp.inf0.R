@@ -50,7 +50,6 @@ df <- df %>%
   summarise(.,abundance=sum(abundance)) %>% ungroup()
 
 # calculate means across replicates and widen data for further analysis ####
-
 dfw <- df %>% 
   ## remove superfluous cols
   dplyr::select(.,
