@@ -1,5 +1,5 @@
 ## imp.inf0.R ##
-## Import infaunal data from current year and combine with historic
+## Import infaunal data for later assessment
 
 # Set up ####
 ### load packages ####
