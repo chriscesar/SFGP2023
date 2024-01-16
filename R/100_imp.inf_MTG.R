@@ -30,24 +30,60 @@ if (!file.exists(destination_file)) {
   cat("File already exists in the data folder.\n")
 }
 
+# import data ####
 df0 <- as_tibble(read_xlsx(destination_file,
                            sheet = "MTG"))
 
-# # drop nuicance/non-marine taxa ####
-# df <- df0 %>%
-#   filter(., units != "flag_fragments") %>% # remove taxa flagged as fragments
-#   filter(., units != "flag_plants") %>% # remove taxa flagged as plants
-#   filter(., is.na(Order) | Order != "Diptera") %>% ###drop flies
-#   filter(., is.na(Order) | Order != "Hemiptera") %>% ###drop bugsLepidoptera
-#   filter(., is.na(Order) | Order != "Lepidoptera") %>% ###drop butterflies/moths
-#   filter(., is.na(Order) | Order != "Hymenoptera") %>% ###drop ants/bees/wasps
-#   filter(., taxonUSE != "Animalia") ###drop taxa flagged only as Animalia
+# drop nuicance/non-marine taxa ####
+df <- df0 %>%
+  filter(., MTG != "Algae_Bact") %>% 
+  filter(., units != "flag_fragments") %>% # remove taxa flagged as fragments
+  filter(., units != "flag_plants") %>% # remove taxa flagged as plants
+  filter(., is.na(Order) | Order != "Diptera") %>% ###drop flies
+  filter(., is.na(Order) | Order != "Hemiptera") %>% ###drop bugsLepidoptera
+  filter(., is.na(Order) | Order != "Lepidoptera") %>% ###drop butterflies/moths
+  filter(., is.na(Order) | Order != "Hymenoptera") %>% ###drop ants/bees/wasps
+  filter(., taxonUSE != "Animalia") ###drop taxa flagged only as Animalia
 
-#convert to presence-only
-df <- df0
+# calculate means across zones and widen data for further analysis ####
+# df %>%
+#   ### convert abundance to binary
+#   mutate(abundance = 1) %>%
+#   ## remove superfluous cols
+#   dplyr::select(
+#     .,
+#     -taxonReported, -units,
+#     -Kingdom,-Phylum,-Class,
+#     -Order,-Family,-Genus,
+#     -Species,-Comment,-taxonUSE
+#   ) %>%
+#   ### sum MTG values within samples
+#   group_by(across(c(!abundance))) %>%
+#   summarise(., abundance = sum(abundance, na.rm = TRUE), .groups = "drop") %>%
+#   ungroup() %>%
+#   ### calculate means across zones
+#   dplyr::select(.,
+#                 -rep,
+#                 -yr.trn.sh.meth.rep,
+#                 -shore,
+#                 -transect,
+#                 -yr.trn,
+#                 -yr.trn.sh,
+#                 -yr.trn.sh.meth
+#                 ) %>%
+#   group_by(across(c(!abundance, MTG))) %>%
+#   summarise(., abundance = mean(abundance, na.rm = TRUE), .groups = "drop") %>%
+#   ungroup() %>%
+#   ## rewiden
+#   pivot_wider(
+#     .,
+#     names_from = MTG,
+#     values_from = abundance,
+#     values_fill = list(abundance = 0)
+#   ) %>%
+#   ungroup()
 
-# calculate means across replicates and widen data for further analysis ####
-dfw <- df %>%
+df %>%
   ### convert abundance to binary
   mutate(abundance = 1) %>%
   ## remove superfluous cols
@@ -62,11 +98,28 @@ dfw <- df %>%
   group_by(across(c(!abundance))) %>%
   summarise(., abundance = sum(abundance, na.rm = TRUE), .groups = "drop") %>%
   ungroup() %>%
-  ### calculate means across reps
-  dplyr::select(., -rep, -yr.trn.sh.meth.rep) %>%
+  ## convert to WIDE and fill in gaps with zero
+  pivot_wider(.,names_from = MTG,values_from = abundance,
+              values_fill=list(abundance = 0)) %>% 
+  #reconvert back to long
+  pivot_longer(.,13:ncol(.),
+               names_to="MTG",
+               values_to="abundance") %>%
+  
+  ### calculate means across zones
+  dplyr::select(.,
+                -rep,
+                -yr.trn.sh.meth.rep,
+                -shore,
+                -transect,
+                -yr.trn,
+                -yr.trn.sh,
+                -yr.trn.sh.meth
+  ) %>%
   group_by(across(c(!abundance, MTG))) %>%
   summarise(., abundance = mean(abundance, na.rm = TRUE), .groups = "drop") %>%
   ungroup() %>%
+  filter(., abundance != 0) %>% 
   ## rewiden
   pivot_wider(
     .,
@@ -74,7 +127,7 @@ dfw <- df %>%
     values_from = abundance,
     values_fill = list(abundance = 0)
   ) %>%
-  ungroup()
+  ungroup() -> dfw
 
 # TIDY UP ####
 # rm(list = ls(pattern = "^df"))
