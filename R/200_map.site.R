@@ -52,7 +52,6 @@ sh_spa <- fortify(sh_spa0)
 sh_rams0 <- st_read(paste0(gisfol,"shapes/","Ramsar_10k.shp"))
 sh_rams <- fortify(sh_rams0)
 
-
 png(file = "output/figs/siteMap.png",
     width=8*ppi, height=12*ppi, res=ppi)
 ggplot()+
