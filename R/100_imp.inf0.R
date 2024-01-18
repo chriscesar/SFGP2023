@@ -37,7 +37,7 @@ df <- df0 %>%
   filter(., units != "flag_fragments") %>% # remove taxa flagged as fragments
   filter(., units != "flag_plants") %>% # remove taxa flagged as plants
   filter(., is.na(Order) | Order != "Diptera") %>% ###drop flies
-  filter(., is.na(Order) | Order != "Hemiptera") %>% ###drop bugsLepidoptera
+  filter(., is.na(Order) | Order != "Hemiptera") %>% ###drop bugs 
   filter(., is.na(Order) | Order != "Lepidoptera") %>% ###drop butterflies/moths
   filter(., is.na(Order) | Order != "Hymenoptera") %>% ###drop ants/bees/wasps
   filter(., taxonUSE != "Animalia") ###drop taxa flagged only as Animalia
