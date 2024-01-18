@@ -369,7 +369,7 @@ geom_smooth(method = "loess", colour = "red", span = .9)+
 facet_grid(shore~zone1)+
 scale_colour_manual(name = "", values=cbPalette)+
 scale_fill_manual(name = "", values=cbPalette)+
-scale_x_continuous(breaks = seq(1996, 2022, by = 2))+
+scale_x_continuous(breaks = seq(1996, 2023, by = 2))+
 xlab("Year") + ylab(bquote("Taxon richness"))+
 theme(legend.position="none",
 strip.text.x = element_text(size = 12),
