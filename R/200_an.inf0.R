@@ -187,7 +187,7 @@ summary(mod2)
 # saveRDS(anova_mod2,file="output/models/inf.2023.mvabund.Rdat")
 (res.binary <- readRDS("output/models/inf.2023.mvabund.Rdat"))
 
-# ##############
+# # ##############
 # # HMSC version ####
 # # To Revisit ####
 # ## see here:
