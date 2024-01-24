@@ -128,7 +128,7 @@ N <- ggplot(data = dfw, aes(y = log(N+1), x = year, fill = zone1))+
         axis.text.x = element_text(angle = 270,hjust=1,vjust=0.5))+
   coord_cartesian(ylim=c(0,NA));N
 
-png(file = "output/figs/epi.ts.S_loess.png",
+png(file = "output/figs/epi.ts.N_loess.png",
     width=12*ppi, height=6*ppi, res=ppi)
 # png(file = "output/figs/epi.ts.S_gam.png",
 #     width=12*ppi, height=6*ppi, res=ppi)
