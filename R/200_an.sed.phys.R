@@ -337,9 +337,9 @@ df %>%
         strip.text = element_text(face="bold"))
 dev.off()
 
-# Wave Class ####
-df %>% filter(.,type == "WaveClass") -> df_wave
-plot(df_wave$value)
+# Wave Class #### not interesting!
+# df %>% filter(.,type == "WaveClass") -> df_wave
+# plot(df_wave$value)
 
 # create summary table for appendices ####
 
