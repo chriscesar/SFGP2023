@@ -13,7 +13,7 @@ rm(ld_pkgs)
 source("R/00_meta_setMeta.R")
 
 ## import & format data ####
-df <- as_tibble(read.csv(paste0(histdatfol,"sed.phys.ts.csv"),
+df <- as_tibble(read.csv(paste0(fol,"sed.phys.ts.csv"),
                          stringsAsFactors = FALSE))
 
 ##order factors
@@ -155,6 +155,32 @@ sjPlot::plot_model(ang_cur_mod3.1,show.values=TRUE, show.p=TRUE)
 visreg::visreg(ang_cur_mod3.1)
 performance::check_posterior_predictions(ang_cur_mod3.1)
 
+## time series ####
+png(file = "output/figs/sed.ang.ts.png",
+    width=12*ppi, height=6*ppi, res=ppi)
+df %>% 
+  filter(.,type=="angle") %>% 
+  mutate(value = as.numeric(value)) %>% 
+  dplyr::select(.,c(year,shore,type,value,zone1)) %>% 
+  ggplot(data=., aes(x=year, y=value, fill=zone1))+
+  geom_boxplot(outlier.shape = NA,
+               aes(group=as.factor(year)), show.legend = FALSE)+
+  geom_jitter(show.legend = FALSE, alpha=0.25)+
+  facet_grid(shore~zone1)+
+  scale_fill_manual(values=cbPalette)+
+  geom_smooth(span=0.9, show.legend = FALSE, col="red",
+              # method = "gam"
+              method = "loess"
+              )+
+  ylab("Beach angle (°)")+
+  theme(axis.title.x = element_blank(),
+  axis.text.y = element_text(size = 12),
+  axis.title.y = element_text(size = 14),
+  strip.text.x = element_text(size = 12),
+  strip.text.y = element_text(size = 12),
+  strip.text = element_text(face="bold"))
+dev.off()
+
 ###=============###
 # Compaction ####
 ###=============###
@@ -284,6 +310,36 @@ ggplot(data=com_cu, aes(x=zone1,y=value,colour=transect))+
   # geom_point()+facet_wrap(.~shore)+
   geom_jitter(width = 0.2)+
   facet_wrap(.~shore)
+
+## time series ####
+png(file = "output/figs/sed.cone.ts.png",
+    width=12*ppi, height=6*ppi, res=ppi)
+df %>% 
+  filter(.,type=="cone") %>% 
+  mutate(value = as.numeric(value)) %>% 
+  dplyr::select(.,c(year,shore,type,value,zone1)) %>% 
+  ggplot(data=., aes(x=year, y=value, fill=zone1))+
+  geom_boxplot(outlier.shape = NA,
+               aes(group=as.factor(year)), show.legend = FALSE)+
+  geom_jitter(show.legend = FALSE, alpha=0.25)+
+  facet_grid(shore~zone1)+
+  scale_fill_manual(values=cbPalette)+
+  geom_smooth(span=0.9, show.legend = FALSE, col="red",
+              # method = "gam"
+              method = "loess"
+  )+
+  ylab("Cone index")+
+  theme(axis.title.x = element_blank(),
+        axis.text.y = element_text(size = 12),
+        axis.title.y = element_text(size = 14),
+        strip.text.x = element_text(size = 12),
+        strip.text.y = element_text(size = 12),
+        strip.text = element_text(face="bold"))
+dev.off()
+
+# Wave Class ####
+df %>% filter(.,type == "WaveClass") -> df_wave
+plot(df_wave$value)
 
 # create summary table for appendices ####
 
