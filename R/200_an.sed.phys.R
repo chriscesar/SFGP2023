@@ -42,7 +42,7 @@ subset(cur_dat, type == "WaveClass")## pull out angle data
 ang_cu <- subset(cur_dat, type == "angle")## pull out angle data
 ang_cu$value <- as.numeric(ang_cu$value)
 
-png(file = paste0("figs/sed.",cur.yr,".sed.mor.angle.png"),
+png(file = paste0("output/figs/sed.",cur.yr,".sed.mor.angle.png"),
     width=12*ppi, height=6*ppi, res=ppi)
 set.seed(pi); ggplot(data = ang_cu, aes(y = value, x = zone1,
                                     fill=zone1))+
@@ -201,7 +201,7 @@ com_cu_st[which.min(com_cu_st$mean.cone),]
 com_cu_st[which.max(com_cu_st$mean.cone),]
 
 ### boxplot ###
-png(file = paste0("figs/sed.",cur.yr,".sed.mor.pen.png"),
+png(file = paste0("output/figs/sed.",cur.yr,".sed.mor.pen.png"),
     width=12*ppi, height=6*ppi, res=ppi)
 set.seed(pi); ggplot(data = com_cu, aes(y = value, x = zone1,
                                  fill=zone1))+
