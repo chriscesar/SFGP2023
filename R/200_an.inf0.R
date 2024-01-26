@@ -41,7 +41,6 @@ df.cur %>%
               values_fill=list(abundance = 0)) %>% 
   ungroup() -> df.cur.w.trm
   
-
 #=#=#=#=#=#=#=#=#==
 ### Ordination ####
 #=#=#=#=#=#=#=#=#==
@@ -163,18 +162,29 @@ write.csv(ano_intinf,
 cur_spp <- mvabund(df.cur.w.trm[,-c(1:9)])
 
 # mean-variance plot
-ttl <- "Very strong mean-variance relationship in zooplankton abundance data"
-sbtt <- "Variance within the dataset covers *5 orders of magnitude*.\nMany multivariate analyses (e.g. ANOSIM, PERMANOVA) assume *no mean-variance relationship*\nThis makes interpretation of such analyses potentially erroneous. Model-based approaches offer an alternative, allowing the mean-variance relationship to be incorporated into the model predictions"
-
 png(file = "output/figs/infMeanVar.png",
     width=12*ppi, height=6*ppi, res=ppi)
-mvabund::meanvar.plot(cur_spp, add.trendline=TRUE,
+mvpl <- mvabund::meanvar.plot(cur_spp, add.trendline=TRUE,
                       xlab="Mean",
                       ylab="Variance",
+                      table=TRUE
                       )
+
+# Step 1: Find the minimum and maximum values
+min_value <- min(mvpl[,2])
+max_value <- max(mvpl[,2])
+
+min_order <- floor(log10(min_value))
+max_order <- floor(log10(max_value))
+orders_of_magnitude_covered <- max_order - min_order
+
+ttl <- "Very strong mean-variance relationship in zooplankton abundance data"
+sbtt <- paste0("Variance within the dataset covers ",orders_of_magnitude_covered," orders of magnitude*.\nMany multivariate analyses (e.g. ANOSIM, PERMANOVA) assume *no mean-variance relationship*\nThis makes interpretation of such analyses potentially erroneous. Model-based approaches offer an alternative, allowing the mean-variance relationship to be incorporated into the model predictions")
+
 mtext(side=3, line = 3, at =-0.07, adj=0, cex = 1, ttl, font=2)
 mtext(side=3, line = 0.75, at =-0.07, adj=0, cex = 0.7, sbtt)
 dev.off()
+rm(min_value,max_value,min_order,max_order,orders_of_magnitude_covered,ttl,sbtt)
 
 mod1 <- manyglm(cur_spp ~ df.cur$zone1, family="poisson")
 plot(mod1)
@@ -233,20 +243,20 @@ summary(mod2)
 # nChains <- 3
 # transient <- ceiling(thin*samples*.5)
 # 
-# # ptm <- proc.time()
-# # mod_HMSC <- sampleMcmc(simul,
-# #                        samples = samples,
-# #                        thin = thin,
-# #                        transient = transient,
-# #                        nChains = nChains#,
-# #                        # nParallel = nChains
-# #                        )
-# # saveRDS(mod_HMSC, file = paste0("output/models/mod_HMSC","_smp",samples,
-# #                                 "_thn",thin,"_trns",transient,"_chn",nChains,
-# #                                 ".Rdata"))
-# # proc.time() - ptm
-# mod_HMSC <- readRDS("output/models/mod_HMSC_smp1000_thn10_trns5000_chn3.Rdata")
-# # mod_HMSC <- readRDS("output/models/mod_HMSC_smp1000_thn50_trns25000_chn3.Rdata")
+# ptm <- proc.time()
+# mod_HMSC <- sampleMcmc(simul,
+#                        samples = samples,
+#                        thin = thin,
+#                        transient = transient,
+#                        nChains = nChains#,
+#                        # nParallel = nChains
+#                        )
+# saveRDS(mod_HMSC, file = paste0("output/models/mod_HMSC","_smp",samples,
+#                                 "_thn",thin,"_trns",transient,"_chn",nChains,
+#                                 ".Rdata"))
+# proc.time() - ptm
+mod_HMSC <- readRDS("output/models/mod_HMSC_smp1000_thn10_trns5000_chn3.Rdata")
+# mod_HMSC <- readRDS("output/models/mod_HMSC_smp1000_thn50_trns25000_chn3.Rdata")
 # 
 # ## investigate model outputs ####
 # mpost <- convertToCodaObject(mod_HMSC) # model diagnostics/convergence
