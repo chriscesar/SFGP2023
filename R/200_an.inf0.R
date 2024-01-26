@@ -1,5 +1,5 @@
 # 200_an.inf0.R ####
-### Multivariate analysis of 2022 intertidal invertebrate data
+### Multivariate analysis of 2023 intertidal invertebrate data
 
 ## load data from long term
 source("R/100_imp.inf0.R")
