@@ -12,7 +12,7 @@ rm(ld_pkgs)
 source("R/00_meta_setMeta.R")
 
 ### load data ####
-ifca <- as_tibble(read.csv(paste0(histdatfol,"icfa_ts.csv")))
+ifca <- as_tibble(read.csv(paste0(fol,"icfa_ts.csv")))
 
 ifca$class <- as.factor(ifca$class)
 
@@ -302,7 +302,7 @@ dev.off()
 ###=============##
 ### ACF PLOTS ####
 ###=============##
-png(file = "figs/ifca.acf.frisk.interp.png",
+png(file = "output/figs/ifca.acf.frisk.interp.png",
     width=12*ppi, height=6*ppi, res=ppi)
 par(mfrow = c(2,1))
 par(mar = c(4, 4, 0.5, 0.2))
@@ -312,7 +312,7 @@ acf(ju.fr.interp$tonnes,main = "", na.action = na.pass)
 text(x = 9.25, y = -0.37,"Friskney Juveniles", adj=0)
 dev.off()
 
-png(file = "figs/ifca.acf.wrang.interp.png",
+png(file = "output/figs/ifca.acf.wrang.interp.png",
     width = 12 * ppi, height = 6 * ppi, res = ppi)
 par(mfrow = c(2,1))
 par(mar = c(4, 4, 0.5, 0.2))
