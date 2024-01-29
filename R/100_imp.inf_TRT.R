@@ -76,6 +76,7 @@ dfl$category <- sapply(split_values, function(x) paste(x[-1], collapse = "_"))
 #######################################################
 # TO DO ####
 # finalise formatting for stacked bar chart
+# need to sort factor levels
 
 
 # # TIDY UP ####
