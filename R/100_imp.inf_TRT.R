@@ -12,6 +12,30 @@ rm(ld_pkgs)
 ### load metadata ####
 source("R/00_meta_setMeta.R")
 
+##amend cols
+cbPalette3 <- c(
+  "#0072B2",
+           "#e79f00",
+           "#009E73",
+           "#9ad0f3",
+           "#A0A0A0" ,
+           "#D55E00" ,
+           "#CC79A7" ,
+           "#004738",
+           "#F0E442",
+           
+           "#003582",
+           "#744500",
+           "#DEAAC6",
+           "#FFFFFF",
+           "#556572",
+           "#A0A0A0" ,
+           "#683000" ,
+           "#664080" ,
+           "#701063",
+           "#807821"
+)
+
 # copy & load data ####
 
 file_name <- "inf_ts_longRAW_USE.xlsx"
@@ -56,23 +80,378 @@ dflall <- df %>% ## sum prevalence of traits across all taxa in all samples
   group_by(across(c(!affiliation))) %>%
   summarise(.,affiliation=sum(affiliation,na.rm=TRUE),.groups="drop")
 
-dfl <- dflall %>% 
-  dplyr::select(.,!c(rep)) %>% #remove replicates
+## add trait and category column names
+# Splitting the strings based on "_"
+split_values <- strsplit(dflall$trait_cat, "_")
+
+# Extracting the values before and after the first "_"
+dflall$trait <- sapply(split_values, function(x) x[1])
+dflall$category <- sapply(split_values, function(x) paste(x[-1], collapse = "_"))
+
+# rename traits ####
+dflall$trait <- 
+  ifelse(dflall$trait == "b","Bioturbation",
+                    ifelse(dflall$trait == "ed","EggDevelopment",
+                           ifelse(dflall$trait == "f","FeedingMode",
+                                  ifelse(dflall$trait == "l","Lifespan_years",
+                                         ifelse(dflall$trait == "ld","LarvalDevelopment",
+                                                ifelse(dflall$trait == "lh","LivingHabit",
+                                                       ifelse(dflall$trait == "m","Morphology",
+                                                              ifelse(dflall$trait == "mob","Mobility",
+                                                                     ifelse(dflall$trait == "sp","SedimentPosition",
+                                                                            ifelse(dflall$trait == "sr","MaxSize",
+                                                                                   NA
+                                                                            ))))))))))
+## assign and order factors
+#zone1
+dflall$zone1 <- factor(dflall$zone1, levels = c("Above","Inside","Inside2","Below","Wash"))
+#shore
+dflall$shore <- factor(dflall$shore, levels=c("Mid","Low"))
+##traits
+dflall$category <- factor(dflall$category,
+                          levels=c("None","Surface_deposition","Diffusive_mixing",
+                                   "Downward_conveyer","Upward_conveyor","Asexual",
+                                   "Sexual_brooded","Sexual_benthic",
+                                   "Sexual_pelagic","Scavenger","Predator",
+                                   "Surface_deposit","Subsurface_deposit",
+                                   "Suspension","Parasite","Less_than_1","1_to_3",
+                                   "3_to_10",
+                                   "More_than_10","Pelagic_lecithotrophic",
+                                   "Pelagic_planktotrophic","Benthic_direct",
+                                   "Free_living","Burrow_dwelling",
+                                   "Tube_dwelling","Crevice_hole_under_stones",
+                                   "Epi_endo_biotic","Attached_to_substratum",
+                                   "Soft","Cushion","Tunic","Stalked","Crustose",
+                                   "Exoskeleton","Swim","Burrower",
+                                   "Crawl_creep_climb","Sessile","Surface",
+                                   "Shallow_infauna_0_to_5cm",
+                                   "Mid_depth_infauna_5_to_10cm",
+                                   "Deep_infauna_more_than_10cm",
+                                   "Less_than_10","11_to_20","21_to_100",
+                                   "101_to_200","201_to_500","More_than_500"))
+
+##mean trait prevalence by across replicates
+dfl_reps <- dflall %>% 
+  dplyr::select(.,!c(rep,#remove replicates
+                     units)) %>% #remove flags
   group_by(across(c(!affiliation))) %>%
   summarise(.,affiliation=mean(affiliation, #calc mean prevalence across reps
                                na.rm = TRUE),
             .groups = "drop")
 
+##mean trait prevalence by across zones*shores
+dfl_shzone <- dflall %>% 
+  dplyr::select(.,!c(rep,#remove replicates
+                     units,#remove flags
+                     transect #remove transects
+                     )) %>% 
+  group_by(across(c(!affiliation))) %>%
+  summarise(.,affiliation=mean(affiliation, #calc mean prevalence across reps
+                               na.rm = TRUE),
+            .groups = "drop")
 
-## add trait and category column names
-# Splitting the strings based on "_"
-split_values <- strsplit(dfl$trait_cat, "_")
+# plot traits over time by zone ####
+## Bioturbation ####
+png(
+  file = "output/figs/inf.Trt.ts.Bioturb.png",
+  width = 15 * ppi,
+  height = 10 * ppi,
+  res = ppi
+)
+dfl_shzone %>% 
+  filter(., mesh != "0.5mm") %>%
+  filter(., zone1 != "Wash") %>% 
+  filter(.,trait=="Bioturbation") %>% 
+  droplevels(.) %>% 
+  ggplot(., aes(x = as.integer(year), y=affiliation, fill=category))+
+  geom_bar( colour=1,position="fill",stat="identity")+
+  facet_grid(shore~zone1)+
+  scale_fill_manual(values = rep(cbPalette3,2))+
+  labs(title = "Prevalence of Bioturbation traits over time within monitoring zones",
+       subtitle = "Intertidal infaunal assemblages sampled as part of the Saltfleet to Gibraltar Point Strategy",
+       caption="Mean relative prevalences of major taxonomic groups across monitoring zones and shore levels
+       Prevalence values indicate the number of taxa recorded in each Shore-Zone which have an affinity for a given trait.
+       These are based on presence-only occurences and do not incorporate measures of taxon abundance.
+       Assemblages were recorded in intertidal infaunal cores extracted from mid and low shore intertidal sediments and sieved over a 1mm mesh.
+       No survey was conducted in 2010.")+
+  ylab("Prevalence")+
+  theme(axis.title.x = element_blank(),
+        legend.title = element_blank(),
+        strip.text = element_text(face = "bold"),
+        axis.title.y = element_text(face = "bold"))
+dev.off()
 
-# Extracting the values before and after the first "_"
-dfl$trait <- sapply(split_values, function(x) x[1])
-dfl$category <- sapply(split_values, function(x) paste(x[-1], collapse = "_"))
+## EggDevelopment ####
+png(
+  file = "output/figs/inf.Trt.ts.EggDevt.png",
+  width = 15 * ppi,
+  height = 10 * ppi,
+  res = ppi
+  )
+dfl_shzone %>% 
+  filter(., mesh != "0.5mm") %>%
+  filter(., zone1 != "Wash") %>% 
+  filter(.,trait=="EggDevelopment") %>% 
+  droplevels(.) %>% 
+  ggplot(., aes(x = as.integer(year), y=affiliation, fill=category))+
+  geom_bar( colour=1,position="fill",stat="identity")+
+  facet_grid(shore~zone1)+
+  scale_fill_manual(values = rep(cbPalette3,2))+
+  labs(title = "Prevalence of Egg Development traits over time within monitoring zones",
+       subtitle = "Intertidal infaunal assemblages sampled as part of the Saltfleet to Gibraltar Point Strategy",
+       caption="Mean relative prevalences of major taxonomic groups across monitoring zones and shore levels
+       Prevalence values indicate the number of taxa recorded in each Shore-Zone which have an affinity for a given trait.
+       These are based on presence-only occurences and do not incorporate measures of taxon abundance.
+       Assemblages were recorded in intertidal infaunal cores extracted from mid and low shore intertidal sediments and sieved over a 1mm mesh.
+       No survey was conducted in 2010.")+
+  ylab("Prevalence")+
+  theme(axis.title.x = element_blank(),
+        legend.title = element_blank(),
+        strip.text = element_text(face = "bold"),
+        axis.title.y = element_text(face = "bold"))
+dev.off()
 
+## FeedingMode ####
+png(
+  file = "output/figs/inf.Trt.ts.FeedMode.png",
+  width = 15 * ppi,
+  height = 10 * ppi,
+  res = ppi
+  )
+dfl_shzone %>% 
+  filter(., mesh != "0.5mm") %>%
+  filter(., zone1 != "Wash") %>% 
+  filter(.,trait=="FeedingMode") %>% 
+  droplevels(.) %>% 
+  ggplot(., aes(x = as.integer(year), y=affiliation, fill=category))+
+  geom_bar( colour=1,position="fill",stat="identity")+
+  facet_grid(shore~zone1)+
+  scale_fill_manual(values = rep(cbPalette3,2))+
+  labs(title = "Prevalence of Feeding Mode traits over time within monitoring zones",
+       subtitle = "Intertidal infaunal assemblages sampled as part of the Saltfleet to Gibraltar Point Strategy",
+       caption="Mean relative prevalences of major taxonomic groups across monitoring zones and shore levels
+       Prevalence values indicate the number of taxa recorded in each Shore-Zone which have an affinity for a given trait.
+       These are based on presence-only occurences and do not incorporate measures of taxon abundance.
+       Assemblages were recorded in intertidal infaunal cores extracted from mid and low shore intertidal sediments and sieved over a 1mm mesh.
+       No survey was conducted in 2010.")+
+  ylab("Prevalence")+
+  theme(axis.title.x = element_blank(),
+        legend.title = element_blank(),
+        strip.text = element_text(face = "bold"),
+        axis.title.y = element_text(face = "bold"))
+dev.off()
 
+## Lifespan_years ####
+png(
+  file = "output/figs/inf.Trt.ts.Lifespan.png",
+  width = 15 * ppi,
+  height = 10 * ppi,
+  res = ppi
+  )
+dfl_shzone %>% 
+  filter(., mesh != "0.5mm") %>%
+  filter(., zone1 != "Wash") %>% 
+  filter(.,trait=="Lifespan_years") %>% 
+  droplevels(.) %>% 
+  ggplot(., aes(x = as.integer(year), y=affiliation, fill=category))+
+  geom_bar( colour=1,position="fill",stat="identity")+
+  facet_grid(shore~zone1)+
+  scale_fill_manual(values = rep(cbPalette3,2))+
+  labs(title = "Prevalence of lifespans (years) displayed by taxa over time within monitoring zones",
+       subtitle = "Intertidal infaunal assemblages sampled as part of the Saltfleet to Gibraltar Point Strategy",
+       caption="Mean relative prevalences of major taxonomic groups across monitoring zones and shore levels
+       Prevalence values indicate the number of taxa recorded in each Shore-Zone which have an affinity for a given trait.
+       These are based on presence-only occurences and do not incorporate measures of taxon abundance.
+       Assemblages were recorded in intertidal infaunal cores extracted from mid and low shore intertidal sediments and sieved over a 1mm mesh.
+       No survey was conducted in 2010.")+
+  ylab("Prevalence")+
+  theme(axis.title.x = element_blank(),
+        legend.title = element_blank(),
+        strip.text = element_text(face = "bold"),
+        axis.title.y = element_text(face = "bold"))
+dev.off()
+
+## LarvalDevelopment ####
+png(
+  file = "output/figs/inf.Trt.ts.LarvDevt.png",
+  width = 15 * ppi,
+  height = 10 * ppi,
+  res = ppi
+)
+dfl_shzone %>% 
+  filter(., mesh != "0.5mm") %>%
+  filter(., zone1 != "Wash") %>% 
+  filter(.,trait=="LarvalDevelopment") %>% 
+  droplevels(.) %>% 
+  ggplot(., aes(x = as.integer(year), y=affiliation, fill=category))+
+  geom_bar( colour=1,position="fill",stat="identity")+
+  facet_grid(shore~zone1)+
+  scale_fill_manual(values = rep(cbPalette3,2))+
+  labs(title = "Prevalence of Larval Development traits over time within monitoring zones",
+       subtitle = "Intertidal infaunal assemblages sampled as part of the Saltfleet to Gibraltar Point Strategy",
+       caption="Mean relative prevalences of major taxonomic groups across monitoring zones and shore levels
+       Prevalence values indicate the number of taxa recorded in each Shore-Zone which have an affinity for a given trait.
+       These are based on presence-only occurences and do not incorporate measures of taxon abundance.
+       Assemblages were recorded in intertidal infaunal cores extracted from mid and low shore intertidal sediments and sieved over a 1mm mesh.
+       No survey was conducted in 2010.")+
+  ylab("Prevalence")+
+  theme(axis.title.x = element_blank(),
+        legend.title = element_blank(),
+        strip.text = element_text(face = "bold"),
+        axis.title.y = element_text(face = "bold"))
+dev.off()
+
+## LivingHabit ####
+png(
+  file = "output/figs/inf.Trt.ts.LivHab.png",
+  width = 15 * ppi,
+  height = 10 * ppi,
+  res = ppi
+  )
+dfl_shzone %>% 
+  filter(., mesh != "0.5mm") %>%
+  filter(., zone1 != "Wash") %>% 
+  filter(.,trait=="LivingHabit") %>% 
+  droplevels(.) %>% 
+  ggplot(., aes(x = as.integer(year), y=affiliation, fill=category))+
+  geom_bar( colour=1,position="fill",stat="identity")+
+  facet_grid(shore~zone1)+
+  scale_fill_manual(values = rep(cbPalette3,2))+
+  labs(title = "Prevalence of Living Habit traits over time within monitoring zones",
+       subtitle = "Intertidal infaunal assemblages sampled as part of the Saltfleet to Gibraltar Point Strategy",
+       caption="Mean relative prevalences of major taxonomic groups across monitoring zones and shore levels
+       Prevalence values indicate the number of taxa recorded in each Shore-Zone which have an affinity for a given trait.
+       These are based on presence-only occurences and do not incorporate measures of taxon abundance.
+       Assemblages were recorded in intertidal infaunal cores extracted from mid and low shore intertidal sediments and sieved over a 1mm mesh.
+       No survey was conducted in 2010.")+
+  ylab("Prevalence")+
+  theme(axis.title.x = element_blank(),
+        legend.title = element_blank(),
+        strip.text = element_text(face = "bold"),
+        axis.title.y = element_text(face = "bold"))
+dev.off()
+
+## Morphology ####
+png(
+  file = "output/figs/inf.Trt.ts.Morph.png",
+  width = 15 * ppi,
+  height = 10 * ppi,
+  res = ppi
+  )
+dfl_shzone %>% 
+  filter(., mesh != "0.5mm") %>%
+  filter(., zone1 != "Wash") %>% 
+  filter(.,trait=="Morphology") %>% 
+  droplevels(.) %>% 
+  ggplot(., aes(x = as.integer(year), y=affiliation, fill=category))+
+  geom_bar( colour=1,position="fill",stat="identity")+
+  facet_grid(shore~zone1)+
+  scale_fill_manual(values = rep(cbPalette3,2))+
+  labs(title = "Prevalence of Morphology traits over time within monitoring zones",
+       subtitle = "Intertidal infaunal assemblages sampled as part of the Saltfleet to Gibraltar Point Strategy",
+       caption="Mean relative prevalences of major taxonomic groups across monitoring zones and shore levels
+       Prevalence values indicate the number of taxa recorded in each Shore-Zone which have an affinity for a given trait.
+       These are based on presence-only occurences and do not incorporate measures of taxon abundance.
+       Assemblages were recorded in intertidal infaunal cores extracted from mid and low shore intertidal sediments and sieved over a 1mm mesh.
+       No survey was conducted in 2010.")+
+  ylab("Prevalence")+
+  theme(axis.title.x = element_blank(),
+        legend.title = element_blank(),
+        strip.text = element_text(face = "bold"),
+        axis.title.y = element_text(face = "bold"))
+dev.off()
+
+## Mobility ####
+png(
+  file = "output/figs/inf.Trt.ts.Mobil.png",
+  width = 15 * ppi,
+  height = 10 * ppi,
+  res = ppi
+  )
+dfl_shzone %>% 
+  filter(., mesh != "0.5mm") %>%
+  filter(., zone1 != "Wash") %>% 
+  filter(.,trait=="Mobility") %>% 
+  droplevels(.) %>% 
+  ggplot(., aes(x = as.integer(year), y=affiliation, fill=category))+
+  geom_bar( colour=1,position="fill",stat="identity")+
+  facet_grid(shore~zone1)+
+  scale_fill_manual(values = rep(cbPalette3,2))+
+  labs(title = "Prevalence of Mobility traits over time within monitoring zones",
+       subtitle = "Intertidal infaunal assemblages sampled as part of the Saltfleet to Gibraltar Point Strategy",
+       caption="Mean relative prevalences of major taxonomic groups across monitoring zones and shore levels
+       Prevalence values indicate the number of taxa recorded in each Shore-Zone which have an affinity for a given trait.
+       These are based on presence-only occurences and do not incorporate measures of taxon abundance.
+       Assemblages were recorded in intertidal infaunal cores extracted from mid and low shore intertidal sediments and sieved over a 1mm mesh.
+       No survey was conducted in 2010.")+
+  ylab("Prevalence")+
+  theme(axis.title.x = element_blank(),
+        legend.title = element_blank(),
+        strip.text = element_text(face = "bold"),
+        axis.title.y = element_text(face = "bold"))
+dev.off()
+
+## SedimentPosition ####
+png(
+  file = "output/figs/inf.Trt.ts.SedPos.png",
+  width = 15 * ppi,
+  height = 10 * ppi,
+  res = ppi
+  )
+dfl_shzone %>% 
+  filter(., mesh != "0.5mm") %>%
+  filter(., zone1 != "Wash") %>% 
+  filter(.,trait=="SedimentPosition") %>% 
+  droplevels(.) %>% 
+  ggplot(., aes(x = as.integer(year), y=affiliation, fill=category))+
+  geom_bar( colour=1,position="fill",stat="identity")+
+  facet_grid(shore~zone1)+
+  scale_fill_manual(values = rep(cbPalette3,2))+
+  labs(title = "Prevalence of Sediment Position traits over time within monitoring zones",
+       subtitle = "Intertidal infaunal assemblages sampled as part of the Saltfleet to Gibraltar Point Strategy",
+       caption="Mean relative prevalences of major taxonomic groups across monitoring zones and shore levels
+       Prevalence values indicate the number of taxa recorded in each Shore-Zone which have an affinity for a given trait.
+       These are based on presence-only occurences and do not incorporate measures of taxon abundance.
+       Assemblages were recorded in intertidal infaunal cores extracted from mid and low shore intertidal sediments and sieved over a 1mm mesh.
+       No survey was conducted in 2010.")+
+  ylab("Prevalence")+
+  theme(axis.title.x = element_blank(),
+        legend.title = element_blank(),
+        strip.text = element_text(face = "bold"),
+        axis.title.y = element_text(face = "bold"))
+dev.off()
+
+## MaxSize ####
+png(
+  file = "output/figs/inf.Trt.ts.MaxSize.png",
+  width = 15 * ppi,
+  height = 10 * ppi,
+  res = ppi
+  )
+dfl_shzone %>% 
+  filter(., mesh != "0.5mm") %>%
+  filter(., zone1 != "Wash") %>% 
+  filter(.,trait=="MaxSize") %>% 
+  droplevels(.) %>% 
+  ggplot(., aes(x = as.integer(year), y=affiliation, fill=category))+
+  geom_bar( colour=1,position="fill",stat="identity")+
+  facet_grid(shore~zone1)+
+  scale_fill_manual(values = rep(cbPalette3,2))+
+  labs(title = "Prevalence of the maximum size (mm) of taxa over time within monitoring zones",
+       subtitle = "Intertidal infaunal assemblages sampled as part of the Saltfleet to Gibraltar Point Strategy",
+       caption="Mean relative prevalences of major taxonomic groups across monitoring zones and shore levels
+       Prevalence values indicate the number of taxa recorded in each Shore-Zone which have an affinity for a given trait.
+       These are based on presence-only occurences and do not incorporate measures of taxon abundance.
+       Assemblages were recorded in intertidal infaunal cores extracted from mid and low shore intertidal sediments and sieved over a 1mm mesh.
+       No survey was conducted in 2010.")+
+  ylab("Prevalence")+
+  theme(axis.title.x = element_blank(),
+        legend.title = element_blank(),
+        strip.text = element_text(face = "bold"),
+        axis.title.y = element_text(face = "bold"))
+dev.off()
+
+# dfl_list <- split.data.frame(dfl,f = dfl$trait)
 #######################################################
 # TO DO ####
 # finalise formatting for stacked bar chart
