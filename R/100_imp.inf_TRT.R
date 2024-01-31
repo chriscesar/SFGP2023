@@ -162,8 +162,9 @@ dfl_shzone %>%
   filter(., mesh != "0.5mm") %>%
   filter(., zone1 != "Wash") %>% 
   filter(.,trait=="Bioturbation") %>% 
+  rename(.,Bioturbation=category) %>% 
   droplevels(.) %>% 
-  ggplot(., aes(x = as.integer(year), y=affiliation, fill=category))+
+  ggplot(., aes(x = as.integer(year), y=affiliation, fill=Bioturbation))+
   geom_bar( colour=1,position="fill",stat="identity")+
   facet_grid(shore~zone1)+
   scale_fill_manual(values = rep(cbPalette3,2))+
@@ -174,9 +175,10 @@ dfl_shzone %>%
        These are based on presence-only occurences and do not incorporate measures of taxon abundance.
        Assemblages were recorded in intertidal infaunal cores extracted from mid and low shore intertidal sediments and sieved over a 1mm mesh.
        No survey was conducted in 2010.")+
-  ylab("Prevalence")+
+  ylab("Proportion of infaunal taxa")+
   theme(axis.title.x = element_blank(),
-        legend.title = element_blank(),
+        # legend.title = element_blank(),
+        legend.title = element_text(face = "bold"),
         strip.text = element_text(face = "bold"),
         axis.title.y = element_text(face = "bold"))
 dev.off()
@@ -192,8 +194,9 @@ dfl_shzone %>%
   filter(., mesh != "0.5mm") %>%
   filter(., zone1 != "Wash") %>% 
   filter(.,trait=="EggDevelopment") %>% 
+  rename(.,Egg_Development=category) %>% 
   droplevels(.) %>% 
-  ggplot(., aes(x = as.integer(year), y=affiliation, fill=category))+
+  ggplot(., aes(x = as.integer(year), y=affiliation, fill=Egg_Development))+
   geom_bar( colour=1,position="fill",stat="identity")+
   facet_grid(shore~zone1)+
   scale_fill_manual(values = rep(cbPalette3,2))+
@@ -204,9 +207,10 @@ dfl_shzone %>%
        These are based on presence-only occurences and do not incorporate measures of taxon abundance.
        Assemblages were recorded in intertidal infaunal cores extracted from mid and low shore intertidal sediments and sieved over a 1mm mesh.
        No survey was conducted in 2010.")+
-  ylab("Prevalence")+
+  ylab("Proportion of infaunal taxa")+
   theme(axis.title.x = element_blank(),
-        legend.title = element_blank(),
+        # legend.title = element_blank(),
+        legend.title = element_text(face = "bold"),
         strip.text = element_text(face = "bold"),
         axis.title.y = element_text(face = "bold"))
 dev.off()
@@ -221,9 +225,10 @@ png(
 dfl_shzone %>% 
   filter(., mesh != "0.5mm") %>%
   filter(., zone1 != "Wash") %>% 
+  rename(.,Feeding_Mode=category) %>% 
   filter(.,trait=="FeedingMode") %>% 
   droplevels(.) %>% 
-  ggplot(., aes(x = as.integer(year), y=affiliation, fill=category))+
+  ggplot(., aes(x = as.integer(year), y=affiliation, fill=Feeding_Mode))+
   geom_bar( colour=1,position="fill",stat="identity")+
   facet_grid(shore~zone1)+
   scale_fill_manual(values = rep(cbPalette3,2))+
@@ -234,9 +239,10 @@ dfl_shzone %>%
        These are based on presence-only occurences and do not incorporate measures of taxon abundance.
        Assemblages were recorded in intertidal infaunal cores extracted from mid and low shore intertidal sediments and sieved over a 1mm mesh.
        No survey was conducted in 2010.")+
-  ylab("Prevalence")+
+  ylab("Proportion of infaunal taxa")+
   theme(axis.title.x = element_blank(),
-        legend.title = element_blank(),
+        # legend.title = element_blank(),
+        legend.title = element_text(face = "bold"),
         strip.text = element_text(face = "bold"),
         axis.title.y = element_text(face = "bold"))
 dev.off()
@@ -252,21 +258,23 @@ dfl_shzone %>%
   filter(., mesh != "0.5mm") %>%
   filter(., zone1 != "Wash") %>% 
   filter(.,trait=="Lifespan_years") %>% 
+  rename(.,Lifespan_years=category) %>% 
   droplevels(.) %>% 
-  ggplot(., aes(x = as.integer(year), y=affiliation, fill=category))+
+  ggplot(., aes(x = as.integer(year), y=affiliation, fill=Lifespan_years))+
   geom_bar( colour=1,position="fill",stat="identity")+
   facet_grid(shore~zone1)+
   scale_fill_manual(values = rep(cbPalette3,2))+
-  labs(title = "Prevalence of lifespans (years) displayed by taxa over time within monitoring zones",
+  labs(title = "Prevalence of lifespans displayed by taxa over time within monitoring zones",
        subtitle = "Intertidal infaunal assemblages sampled as part of the Saltfleet to Gibraltar Point Strategy",
        caption="Mean relative prevalences of major taxonomic groups across monitoring zones and shore levels
        Prevalence values indicate the number of taxa recorded in each Shore-Zone which have an affinity for a given trait.
        These are based on presence-only occurences and do not incorporate measures of taxon abundance.
        Assemblages were recorded in intertidal infaunal cores extracted from mid and low shore intertidal sediments and sieved over a 1mm mesh.
        No survey was conducted in 2010.")+
-  ylab("Prevalence")+
+  ylab("Proportion of infaunal taxa")+
   theme(axis.title.x = element_blank(),
-        legend.title = element_blank(),
+        # legend.title = element_blank(),
+        legend.title = element_text(face = "bold"),
         strip.text = element_text(face = "bold"),
         axis.title.y = element_text(face = "bold"))
 dev.off()
@@ -282,8 +290,9 @@ dfl_shzone %>%
   filter(., mesh != "0.5mm") %>%
   filter(., zone1 != "Wash") %>% 
   filter(.,trait=="LarvalDevelopment") %>% 
+  rename(.,Larval_Development=category) %>% 
   droplevels(.) %>% 
-  ggplot(., aes(x = as.integer(year), y=affiliation, fill=category))+
+  ggplot(., aes(x = as.integer(year), y=affiliation, fill=Larval_Development))+
   geom_bar( colour=1,position="fill",stat="identity")+
   facet_grid(shore~zone1)+
   scale_fill_manual(values = rep(cbPalette3,2))+
@@ -294,9 +303,10 @@ dfl_shzone %>%
        These are based on presence-only occurences and do not incorporate measures of taxon abundance.
        Assemblages were recorded in intertidal infaunal cores extracted from mid and low shore intertidal sediments and sieved over a 1mm mesh.
        No survey was conducted in 2010.")+
-  ylab("Prevalence")+
+  ylab("Proportion of infaunal taxa")+
   theme(axis.title.x = element_blank(),
-        legend.title = element_blank(),
+        # legend.title = element_blank(),
+        legend.title = element_text(face = "bold"),
         strip.text = element_text(face = "bold"),
         axis.title.y = element_text(face = "bold"))
 dev.off()
@@ -312,8 +322,9 @@ dfl_shzone %>%
   filter(., mesh != "0.5mm") %>%
   filter(., zone1 != "Wash") %>% 
   filter(.,trait=="LivingHabit") %>% 
+  rename(.,Living_Habit=category) %>% 
   droplevels(.) %>% 
-  ggplot(., aes(x = as.integer(year), y=affiliation, fill=category))+
+  ggplot(., aes(x = as.integer(year), y=affiliation, fill=Living_Habit))+
   geom_bar( colour=1,position="fill",stat="identity")+
   facet_grid(shore~zone1)+
   scale_fill_manual(values = rep(cbPalette3,2))+
@@ -324,9 +335,10 @@ dfl_shzone %>%
        These are based on presence-only occurences and do not incorporate measures of taxon abundance.
        Assemblages were recorded in intertidal infaunal cores extracted from mid and low shore intertidal sediments and sieved over a 1mm mesh.
        No survey was conducted in 2010.")+
-  ylab("Prevalence")+
+  ylab("Proportion of infaunal taxa")+
   theme(axis.title.x = element_blank(),
-        legend.title = element_blank(),
+        # legend.title = element_blank(),
+        legend.title = element_text(face = "bold"),
         strip.text = element_text(face = "bold"),
         axis.title.y = element_text(face = "bold"))
 dev.off()
@@ -342,8 +354,9 @@ dfl_shzone %>%
   filter(., mesh != "0.5mm") %>%
   filter(., zone1 != "Wash") %>% 
   filter(.,trait=="Morphology") %>% 
+  rename(.,Morphology=category) %>% 
   droplevels(.) %>% 
-  ggplot(., aes(x = as.integer(year), y=affiliation, fill=category))+
+  ggplot(., aes(x = as.integer(year), y=affiliation, fill=Morphology))+
   geom_bar( colour=1,position="fill",stat="identity")+
   facet_grid(shore~zone1)+
   scale_fill_manual(values = rep(cbPalette3,2))+
@@ -354,9 +367,10 @@ dfl_shzone %>%
        These are based on presence-only occurences and do not incorporate measures of taxon abundance.
        Assemblages were recorded in intertidal infaunal cores extracted from mid and low shore intertidal sediments and sieved over a 1mm mesh.
        No survey was conducted in 2010.")+
-  ylab("Prevalence")+
+  ylab("Proportion of infaunal taxa")+
   theme(axis.title.x = element_blank(),
-        legend.title = element_blank(),
+        # legend.title = element_blank(),
+        legend.title = element_text(face = "bold"),
         strip.text = element_text(face = "bold"),
         axis.title.y = element_text(face = "bold"))
 dev.off()
@@ -372,8 +386,9 @@ dfl_shzone %>%
   filter(., mesh != "0.5mm") %>%
   filter(., zone1 != "Wash") %>% 
   filter(.,trait=="Mobility") %>% 
+  rename(.,Mobility=category) %>% 
   droplevels(.) %>% 
-  ggplot(., aes(x = as.integer(year), y=affiliation, fill=category))+
+  ggplot(., aes(x = as.integer(year), y=affiliation, fill=Mobility))+
   geom_bar( colour=1,position="fill",stat="identity")+
   facet_grid(shore~zone1)+
   scale_fill_manual(values = rep(cbPalette3,2))+
@@ -384,9 +399,10 @@ dfl_shzone %>%
        These are based on presence-only occurences and do not incorporate measures of taxon abundance.
        Assemblages were recorded in intertidal infaunal cores extracted from mid and low shore intertidal sediments and sieved over a 1mm mesh.
        No survey was conducted in 2010.")+
-  ylab("Prevalence")+
+  ylab("Proportion of infaunal taxa")+
   theme(axis.title.x = element_blank(),
-        legend.title = element_blank(),
+        # legend.title = element_blank(),
+        legend.title = element_text(face = "bold"),
         strip.text = element_text(face = "bold"),
         axis.title.y = element_text(face = "bold"))
 dev.off()
@@ -402,8 +418,9 @@ dfl_shzone %>%
   filter(., mesh != "0.5mm") %>%
   filter(., zone1 != "Wash") %>% 
   filter(.,trait=="SedimentPosition") %>% 
+  rename(.,Sediment_Position=category) %>% 
   droplevels(.) %>% 
-  ggplot(., aes(x = as.integer(year), y=affiliation, fill=category))+
+  ggplot(., aes(x = as.integer(year), y=affiliation, fill=Sediment_Position))+
   geom_bar( colour=1,position="fill",stat="identity")+
   facet_grid(shore~zone1)+
   scale_fill_manual(values = rep(cbPalette3,2))+
@@ -414,9 +431,10 @@ dfl_shzone %>%
        These are based on presence-only occurences and do not incorporate measures of taxon abundance.
        Assemblages were recorded in intertidal infaunal cores extracted from mid and low shore intertidal sediments and sieved over a 1mm mesh.
        No survey was conducted in 2010.")+
-  ylab("Prevalence")+
+  ylab("Proportion of infaunal taxa")+
   theme(axis.title.x = element_blank(),
-        legend.title = element_blank(),
+        # legend.title = element_blank(),
+        legend.title = element_text(face = "bold"),
         strip.text = element_text(face = "bold"),
         axis.title.y = element_text(face = "bold"))
 dev.off()
@@ -432,8 +450,9 @@ dfl_shzone %>%
   filter(., mesh != "0.5mm") %>%
   filter(., zone1 != "Wash") %>% 
   filter(.,trait=="MaxSize") %>% 
+  rename(.,Max_Size=category) %>% 
   droplevels(.) %>% 
-  ggplot(., aes(x = as.integer(year), y=affiliation, fill=category))+
+  ggplot(., aes(x = as.integer(year), y=affiliation, fill=Max_Size))+
   geom_bar( colour=1,position="fill",stat="identity")+
   facet_grid(shore~zone1)+
   scale_fill_manual(values = rep(cbPalette3,2))+
@@ -444,9 +463,10 @@ dfl_shzone %>%
        These are based on presence-only occurences and do not incorporate measures of taxon abundance.
        Assemblages were recorded in intertidal infaunal cores extracted from mid and low shore intertidal sediments and sieved over a 1mm mesh.
        No survey was conducted in 2010.")+
-  ylab("Prevalence")+
+  ylab("Proportion of infaunal taxa")+
   theme(axis.title.x = element_blank(),
-        legend.title = element_blank(),
+        # legend.title = element_blank(),
+        legend.title = element_text(face = "bold"),
         strip.text = element_text(face = "bold"),
         axis.title.y = element_text(face = "bold"))
 dev.off()
