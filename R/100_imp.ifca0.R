@@ -88,7 +88,7 @@ tot.interp <-
 levels(ifca$class) <- c("Adult","Juvenile")
 levels(ifca.interp$class) <- c("Adult","Juvenile")
 
-png(file = "figs/ifca.class.ts.png",
+png(file = "output/figs/ifca.class.ts.png",
     width=12*ppi, height=6*ppi, res=ppi)
 ggplot(data = ifca, aes(x = year, y = tonnes, fill = bed))+
   geom_hline(yintercept = 0,colour="lightgrey",lty=2)+
@@ -112,7 +112,7 @@ ggplot(data = ifca, aes(x = year, y = tonnes, fill = bed))+
 dev.off()
 
 ### combined: normal
-png(file = "figs/ifca.tot.ts.png",
+png(file = "output/figs/ifca.tot.ts.png",
     width=12*ppi, height=6*ppi, res=ppi)
 ggplot(data = tot, aes(x = year, y = tot.cockle, fill = bed))+
   geom_smooth(method = "loess", colour = "red", span = 0.9)+
@@ -134,7 +134,7 @@ ggplot(data = tot, aes(x = year, y = tot.cockle, fill = bed))+
 dev.off()
 
 ### combined: interpolated
-png(file = "figs/ifca.tot.ts.interp.png",
+png(file = "output/figs/ifca.tot.ts.interp.png",
     width=12*ppi, height=6*ppi, res=ppi)
 ggplot(data = tot.interp, aes(x = year, y = tot.cockle, fill = bed))+
   geom_smooth(method = "loess", colour = "red", span = 0.9)+
@@ -205,12 +205,12 @@ ccf(ju$tonnes,ad$tonnes, main = "Juvenile vs Adult",
 ccf(ju.interp$tonnes,ad.interp$tonnes, main = "Juvenile vs Adult",
     na.action = na.pass)
 
-png(file = "figs/ifca.juv&adult.ccf.bothbeds.png",
+png(file = "output/figs/ifca.juv&adult.ccf.bothbeds.png",
     width=12*ppi, height=6*ppi, res=ppi)
 ccf(ju$tonnes,ad$tonnes, main = "Juvenile vs Adult", na.action = na.pass)
 dev.off()
 
-png(file = "figs/ifca.juv&adult.ccf.bothbeds.interp.png",
+png(file = "output/figs/ifca.juv&adult.ccf.bothbeds.interp.png",
     width=12*ppi, height=6*ppi, res=ppi)
 ccf(ju.interp$tonnes,ad.interp$tonnes, main = "Juvenile vs Adult", na.action = na.pass)
 dev.off()
@@ -221,7 +221,7 @@ dev.off()
 ### normal
 ad.wr <- subset(ad, bed == "Wrangle")
 ju.wr <- subset(ju, bed == "Wrangle")
-png(file = "figs/ifca.juv&adult.Wrangle.ccf.png",
+png(file = "output/figs/ifca.juv&adult.Wrangle.ccf.png",
     width=12*ppi, height=6*ppi, res=ppi)
 par(mar = c(4,4,4,0.2))
 ccf(ju.wr$tonnes,ad.wr$tonnes,
@@ -231,7 +231,7 @@ dev.off()
 
 ad.fr <- subset(ad, bed == "Friskney")
 ju.fr <- subset(ju, bed == "Friskney")
-png(file = "figs/ifca.juv&adult.Friskney.ccf.png",
+png(file = "output/figs/ifca.juv&adult.Friskney.ccf.png",
     width=12*ppi, height=6*ppi, res=ppi)
 par(mar = c(4,4,4,0.2))
 ccf(ju.fr$tonnes,ad.fr$tonnes,
@@ -242,7 +242,7 @@ dev.off()
 ad.wr.interp <- subset(ad.interp, bed == "Wrangle")
 ju.wr.interp <- subset(ju.interp, bed == "Wrangle")
 
-png(file = "figs/ifca.juv&adult.Wrangle.ccf.interp.png",
+png(file = "output/figs/ifca.juv&adult.Wrangle.ccf.interp.png",
     width=12*ppi, height=6*ppi, res=ppi)
 par(mar = c(4,4,4,0.2))
 ccf(ju.wr.interp$tonnes,ad.wr.interp$tonnes,
@@ -250,7 +250,7 @@ ccf(ju.wr.interp$tonnes,ad.wr.interp$tonnes,
 dev.off()
 ad.fr.interp <- subset(ad.interp, bed == "Friskney")
 ju.fr.interp <- subset(ju.interp, bed == "Friskney")
-png(file = "figs/ifca.juv&adult.Friskney.ccf.interp.png",
+png(file = "output/figs/ifca.juv&adult.Friskney.ccf.interp.png",
     width=12*ppi, height=6*ppi, res=ppi)
 par(mar = c(4,4,4,0.2))
 ccf(ju.fr.interp$tonnes,ad.fr.interp$tonnes,
@@ -267,7 +267,7 @@ fr.ccf.interp <- ccf(ju.fr.interp$tonnes,ad.fr.interp$tonnes, main = "",
                      na.action = na.pass)
 
 ### normal ###
-png(file = "figs/ifca.juv&adult.each.ccf.png",
+png(file = "output/figs/ifca.juv&adult.each.ccf.png",
     width=12*ppi, height=6*ppi, res=ppi)
 par(mfrow=c(2,1))
 par(mar = c(2,4,.5,0.2))
@@ -287,7 +287,7 @@ dev.off()
 # i.e., a strong juvenile cohort is a reasonable predictor of adults the following year
 
 ### interpolated###
-png(file = "figs/ifca.juv&adult.each.ccf.interp.png",
+png(file = "output/figs/ifca.juv&adult.each.ccf.interp.png",
     width=12*ppi, height=6*ppi, res=ppi)
 par(mfrow=c(2,1))
 par(mar = c(2,4,.5,0.2))
@@ -328,7 +328,7 @@ dev.off()
 ######################################################
 
 ### import sediment nourishment data ####
-vols <- read.csv(file="data/2022_nourish_vol&landings.csv", header = T)
+vols <- read.csv(file=paste0(fol,"nourish_vol_and_landings.csv"), header = T)
 vols <- droplevels(vols[vols$measure == "sand nourishment",])
 vols$sand_m3 <- vols$value
 
@@ -351,7 +351,7 @@ sed.wr.interp <- ccf(tot.wr.interp$tot.cockle,vols$sand_m3,na.action = na.contig
 ### Suggests that Sediment nourishment at time t
 ### is associated with elevated cockle hauls at t+1
 
-png(file = "output/figs/ifca/ifca.ccf.totcocklVSed.png",
+png(file = "output/figs/ifca.ccf.totcocklVSed.png",
     width = 12 * ppi, height = 6 * ppi, res = ppi)
 par(mfrow = c(2, 1))
 par(mar = c(4, 4, 0.5, 0.2))
@@ -363,7 +363,7 @@ abline(v = 0, col = "light grey", lty = 4)
 text(-8.75, -0.35, "Wrangle", cex = 1.5) #b) = WRANGLE
 dev.off()
 
-png(file = "output/figs/ifca/ifca.ccf.totcocklVSed.interp.png",
+png(file = "output/figs/ifca.ccf.totcocklVSed.interp.png",
     width = 12 * ppi, height = 6 * ppi, res = ppi)
 par(mfrow = c(2, 1))
 par(mar = c(4, 4, 0.5, 0.2))
@@ -379,10 +379,11 @@ dev.off()
 rm(list = ls(pattern = "^ad"))
 rm(list = ls(pattern = "^ju"))
 rm(list = ls(pattern = "^fr"))
+rm(list = ls(pattern = "^df"))
 rm(list = ls(pattern = "^wr"))
 rm(list = ls(pattern = "^ifca"))
 rm(list = ls(pattern = "^tot"))
 rm(list = ls(pattern = "^sed"))
-rm(vols,cbPalette,ppi,cur_yr,libfolder)
+rm(vols,cbPalette,ppi,cur.yr,fol, cbPaletteTxt,gisfol,perm,url)
 
 detach("package:tidyverse", unload = TRUE)
