@@ -55,9 +55,11 @@ sh_rams <- fortify(sh_rams0)
 png(file = "output/figs/siteMap.png",
     width=8*ppi, height=12*ppi, res=ppi)
 ggplot()+
-  geom_sf(data = base_0, fill = "darkolivegreen4") +
+  # geom_sf(data = base_0, fill = "darkolivegreen4") +
+  geom_sf(data = base_0, fill = "#B4D79D") +
   geom_sf(data = towns_area[towns_area$DESCRIPTIO == "Large Urban Area polygon",],
-          fill="darkgrey")+
+          #fill="darkgrey")+
+          fill="#CCCCCC")+
   geom_point(data = df0,
              aes(x = Eastings,
                  y = Northings,
@@ -68,30 +70,54 @@ ggplot()+
              size = 4, 
              inherit.aes = FALSE,
              show.legend = FALSE)+
-  geom_text_repel(data = df0,
-                 segment.colour="grey",
-                  nudge_x = 0.1,
-                  # point.padding = 0.5,
-                 point.padding = 4.5,
-                 aes(x = Eastings,
-                     y = Northings,
-                     label = Transect), 
-                 fontface = "bold",
-                 force = 0.5,
-                 inherit.aes = FALSE,
-                 seed = pi,
-                 direction = "x") +
-  geom_text(data = towns_pt_df,
+  # geom_text_repel(data = df0,
+  #                segment.colour="grey",
+  #                 nudge_x = 0.1,
+  #                 # point.padding = 0.5,
+  #                point.padding = 4.5,
+  #                aes(x = Eastings,
+  #                    y = Northings,
+  #                    label = Transect), 
+  #                fontface = "bold",
+  #                force = 0.5,
+  #                inherit.aes = FALSE,
+  #                seed = pi,
+  #                direction = "x") +
+geom_text_repel(data = df0,
+                segment.colour="grey",
+                nudge_x = 0.1,
+                # point.padding = 0.5,
+                point.padding = 4.5,
+                aes(x = Eastings,
+                    y = Northings,
+                    label = Transect), 
+                fontface = "bold",
+                force = 0.5,
+                inherit.aes = FALSE,
+                seed = pi,
+                bg.colour="white",
+                direction = "x") +
+  # geom_text(data = towns_pt_df,
+  #           aes(x = East, y = North, label = NAME), 
+  #           inherit.aes = FALSE,
+  #           hjust = 1,
+  #           vjust = 1, 
+  #           fontface = "bold.italic")+
+  geom_text_repel(data = towns_pt_df[towns_pt_df$NAME == "SKEGNESS" |
+                                       towns_pt_df$NAME == "MABLETHORPE",],
             aes(x = East, y = North, label = NAME), 
             inherit.aes = FALSE,
             hjust = 1,
-            vjust = 1, 
+            vjust = 1,
+            nudge_x = -1000,
+            segment.colour=NA,
+            bg.colour="white",
             fontface = "bold.italic")+
   coord_sf(xlim = c(534750, 563000),
            ylim = c(344500, 389070))+
   scale_fill_manual(values = cbPalette)+
   scale_shape_manual(values=c(3,21))+
-  labs(title = "Location of intertidal transects surveyed as part of the Saltfleet to Gibraltar Point\n Strategy 2023")+
+  labs(title = "Location of intertidal transects surveyed as part of the Saltfleet to Gibraltar\nPoint Strategy 2023")+
   ggthemes::theme_few()+
   theme(axis.title = element_blank(),
         axis.text = element_blank(),
