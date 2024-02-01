@@ -15,6 +15,36 @@ rm(ld_pkgs)
 ### set metadata
 source("R/00_meta_setMeta.R")
 
+cbPalette2 <- c( ### colourblind-friendly chart colour palette
+  # comments reflect Red/Green/Blue equivalents
+  "#0072B2", #000, 114, 178
+           "#003959",
+           "#e79f00", #231, 159, 0
+           "#745000",
+           "#009E73", #000, 158, 115
+           "#004F3A",
+           "#9ad0f3", #154, 208, 243
+           "#4D6879",
+           "#000000", #0, 0, 0
+           "#D55E00", #213, 94, 0
+           "#CC79A7", #204, 121, 167
+           "#DEAAC6", #222, 170, 198 - The Wash
+           "#F0E442"  #240, 228, 66
+)
+
+cbPalette2 <- c( ### colourblind-friendly chart colour palette
+  # comments reflect Red/Green/Blue equivalents
+  "#0072B2", #000, 114, 178
+           "#e79f00", #231, 159, 0
+           "#009E73", #000, 158, 115
+           "#9ad0f3", #154, 208, 243
+           "#000000", #0, 0, 0
+           "#D55E00", #213, 94, 0
+           "#CC79A7", #204, 121, 167
+           "#DEAAC6", #222, 170, 198 - The Wash
+           "#F0E442"  #240, 228, 66
+)
+
 ## calculate indices ####
 ## faunal density (N)
 tmp <- dfw[,-c(1:5)]
@@ -135,3 +165,160 @@ png(file = "output/figs/epi.ts.N_loess.png",
 print(N);
 dev.off();
 rm(N)
+
+# MULTIVARIATE ####
+#=#=#=#=#=#=#=#=#==
+### Ordination ####
+#=#=#=#=#=#=#=#=#==
+met <- dfcur %>% 
+  dplyr::select(.,year:mon,zone1mod)
+dat <- dfcur %>% 
+  dplyr::select(.,-c(year:mon,zone1mod,S,N)) %>% 
+  mutate_all(~ifelse(. < 0, 1, .)) %>% 
+  dplyr::select(.,(names(.)[colSums(.) >= 1])) #%>% 
+
+colnames(dat) <- make.cepnames(colnames(dat)) #shorten names for display
+  
+### RUN ORDINATION ####
+set.seed(pi)
+ord <- metaMDS(
+  dat,
+  distance = "bray",
+  k = 2,
+  trymax = 500,
+  maxit = 1500
+)
+
+plot(ord)
+
+
+### MDS plot prep ####
+abv <- c("T1")
+ins <- c("T4","T8")
+ins2 <- "T13"
+bel <- c("T20")
+
+data.scores <- as.data.frame(scores(ord)[1])
+names(data.scores) <- c("NMDS1","NMDS2")
+data.scores$transect <- met$transect
+data.scores$depth <- met$depth
+data.scores$mon <- met$mon
+data.scores$zone1 <- ifelse(data.scores$transect %in% abv, "Above",
+                            ifelse(data.scores$transect %in% ins, "Inside",
+                                   ifelse(data.scores$transect %in% ins2, "Inside2",
+                                          ifelse(data.scores$transect %in% bel, "Below","ERROR")
+                                   )))
+
+species.scores <- as.data.frame(scores(ord, "species"))
+species.scores$species <- rownames(species.scores)
+data.scores$zone1 <- factor(data.scores$zone1,
+                            levels =
+                              c("Above", "Inside", "Inside2",
+                                "Below"))
+
+data.scores$zoneMon <- paste0(data.scores$zone1,data.scores$mon)
+rm(abv,bel,ins,ins2)
+
+### MDS classic version ####
+png(
+  # file = "output/figs/epi.MDS.23.Sep.png",
+  file = "output/figs/epi.MDS.23.Oct.png",
+  width = 12 * ppi,
+  height = 8 * ppi,
+  res = ppi
+)
+
+ggplot() +
+  geom_hline(yintercept = 0, colour = "grey") +
+  geom_vline(xintercept = 0, colour = "grey") +
+  geom_text(data = species.scores,
+            aes(x = NMDS1, y = NMDS2,
+                label = species),
+            alpha = 0.5) + # add the species labels
+  geom_point(data = data.scores[data.scores$mon=="Oct",],
+             aes(
+               x = NMDS1,
+               y = NMDS2,
+               shape = depth,
+               colour = zone1),
+             size = 8,
+             show.legend = TRUE
+             ) +# add the point markers
+  # scale_fill_manual(values = cbPalette) +
+  scale_color_manual("Zone", values = cbPalette) +
+  scale_shape_discrete(name = "Depth") +
+  coord_fixed()+
+  # geom_text_npc(aes(npcx = .99, npcy = .99, label=paste("September")))+
+  geom_text_npc(aes(npcx = .99, npcy = .99, label=paste("October\nStress = ",
+                                                        round(ord$stress, 3))))+
+  # facet_wrap(.~mon)
+  labs(
+  # title = paste0("Nonmetric Multidimensional Scaling plot of epifauna recorded in ",cur.yr),
+  #      # caption=expression(atop(Based~on~0.1~m^2~sediment~cores~sieved~over~a~1~mm~mesh,
+  #      #                         paste("Midshore sample of transect T8 excluded"))))+
+       caption="Based on epibenthic beam trawls.<br>'Presence-only' taxon scores replaced with values of '1'")+
+  theme(plot.caption = element_markdown(lineheight = 1.2))
+
+dev.off()
+
+# ADONIS  (Permanova) ####
+ano_epiinf <- adonis2(dat ~ met$zone1,
+                      permutations = perm)
+saveRDS(ano_epiinf,file="output/models/epiadonis2023.Rdat")
+(ano_epiinf <- readRDS(file="output/models/epiadonis2023.Rdat"))
+### is P <0.05?
+ano_epiinf[["Pr(>F)"]][1] <0.05 ###Is P<0.05?
+
+###output model summaries
+###full model
+write.csv(ano_epiinf,
+          file="output/models/ano_epiinf.csv",
+          row.names=TRUE)
+
+# MVABUND version ####
+cur_spp <- mvabund(dat)
+
+# mean-variance plot
+png(file = "output/figs/epiMeanVar.png",
+    width=12*ppi, height=6*ppi, res=ppi)
+mvpl <- mvabund::meanvar.plot(cur_spp, add.trendline=TRUE,
+                              xlab="Mean",
+                              ylab="Variance",
+                              table=TRUE
+)
+
+# Step 1: Find the minimum and maximum values
+min_value <- min(mvpl[,2])
+max_value <- max(mvpl[,2])
+
+min_order <- floor(log10(min_value))
+max_order <- floor(log10(max_value))
+orders_of_magnitude_covered <- max_order - min_order
+
+ttl <- "Very strong mean-variance relationship in epifaunal abundance data"
+sbtt <- paste0("Variance within the dataset covers ",orders_of_magnitude_covered," orders of magnitude*.\nMany multivariate analyses (e.g. ANOSIM, PERMANOVA) assume *no mean-variance relationship*\nThis makes interpretation of such analyses potentially erroneous. Model-based approaches offer an alternative, allowing the mean-variance relationship to be incorporated into the model predictions")
+
+mtext(side=3, line = 3, at =-0.07, adj=0, cex = 1, ttl, font=2)
+mtext(side=3, line = 0.75, at =-0.07, adj=0, cex = 0.7, sbtt)
+dev.off()
+
+rm(min_value,max_value,min_order,max_order,orders_of_magnitude_covered,ttl,sbtt)
+
+mod1 <- manyglm(cur_spp ~ met$zone1, family="poisson")
+plot(mod1)
+
+mod2 <- manyglm(cur_spp ~ met$zone1*met$depth, family="negative_binomial")
+plot(mod2)
+summary(mod2)
+
+# anova_mod2 <- mvabund::anova.manyglm(mod2,p.uni = "adjusted")
+# saveRDS(anova_mod2,file="output/models/epi.2023.mvabund.Rdat")
+(res.binary <- readRDS("output/models/epi.2023.mvabund.Rdat"))
+
+mod3 <- manyglm(cur_spp ~ met$zone1*met$depth*met$mon, family="negative_binomial")
+plot(mod3)
+summary(mod3)
+
+# anova_mod3 <- mvabund::anova.manyglm(mod3,p.uni = "adjusted")
+# saveRDS(anova_mod3,file="output/models/epi.2023.mvabund_mod3.Rdat")
+(res.binary <- readRDS("output/models/epi.2023.mvabund_mod3.Rdat"))
