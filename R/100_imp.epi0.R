@@ -31,11 +31,8 @@ if (!file.exists(destination_file)) {
 
 df0 <- as_tibble(read_xlsx(destination_file,
                            sheet = "epi.ts.long"))
-
-### to do
-### convert x abundance to 0 and convert to numeric
-### sum values per station (i.e. lab + vessel)
-### widen data
+dfcra <- as_tibble(read_xlsx(destination_file,
+                           sheet = "df.cra.ts"))
 
 df0 %>% 
   filter(., Kingdom == "Animalia") %>% 
