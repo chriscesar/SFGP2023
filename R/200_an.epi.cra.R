@@ -60,25 +60,34 @@ df$zone1 <- factor(df$zone1, levels = c("Inside","Above","Inside2",
 ### min max Crangon abundance ####
 dfw$Crangon_all <- dfw$Crangon+dfw$`Crangon crangon`
 dfwcur <- dfw[dfw$year==cur.yr,]
-View(dfwcur[,c(1:5, ncol(dfwcur))])
+#reorder factors for comparison
+dfwcur$zone1 <- factor(dfwcur$zone1, levels = c("Inside","Above","Inside2","Below"))
 
-car::Anova(mod01<-lmer(Crangon_all ~ zone1 + (1|depth) + (1|mon),
-                data=dfwcur))
-performance::check_model(mod01)
+# View(dfwcur[,c(1:5, ncol(dfwcur))])
+plot(performance::check_distribution(dfwcur$Crangon_all)) # NegBin
+# car::Anova(mod01<-lmer(Crangon_all ~ zone1 +
+#                          (1|depth) +
+#                          (1|mon)
+#                        ,
+#                 data=dfwcur))
+# performance::check_model(mod01)
 
-###############################################################################
-###############################################################################
-###############################################################################
-###############################################################################
-###############################################################################
+car::Anova(mod02<-glmer.nb(Crangon_all ~ zone1 +
+                   # (1|depth) +
+                   (1|mon)
+                 ,
+                 data=dfwcur))
+summary(mod02)
+visreg::visreg(mod02)
+performance::check_model(mod02)
 
 ### summary data: mean length
 mean(df$len.mm);sd(df$len.mm)
 
 ### adults vs juves
 table(df$ad.ju)
-length(df$ad.ju[df$ad.ju=="Adult"])/length(df$ad.ju)*100#;ad.per;rm(ad.per)
-length(df$ad.ju[df$ad.ju=="Juv"])/length(df$ad.ju)*100#;ju.per;rm(ju.per)
+print(paste0(round(length(df$ad.ju[df$ad.ju=="Adult"])/length(df$ad.ju)*100,2),"% Adults"))#;ad.per;rm(ad.per)
+print(paste0(round(length(df$ad.ju[df$ad.ju=="Juv"])/length(df$ad.ju)*100,2),"% Juveniles"))#;ju.per;rm(ju.per)
 
 ### COMPARE LENGTHS BETWEEN SURVEYS ####
 ## reorganise factors
@@ -96,13 +105,29 @@ df %>%
 effsize::cohen.d(df$len.mm,df$mon)## Cohen's d indicates 'large' effect of survey month
 rm(m1)
 
+
+
+
+
+
+
+
+###############################################################################
+###############################################################################
+###############################################################################
+###############################################################################
+###############################################################################
+
 ### Compare length vs zone ####
-len_mod <- lmer(len.mm ~ zone1 + (1|site) + (1|mon), data=dd)
+plot(performance::check_distribution(dd$len.mm))#tweedie
+
+len_mod <- lmer(len.mm ~ zone1 + (1|site) + (1|mon),data=dd)
 summary(len_mod)
 anova(len_mod)
 d <- as.data.frame(ls_means(len_mod, test.effs = "Group",pairwise = TRUE))
 d[d$`Pr(>|t|)`<0.051,]
 sjPlot::plot_model(len_mod,show.values=TRUE, show.p=TRUE)
+visreg::visreg(len_mod)
 rm(len_mod,d)
 
 df$zone1 <- factor(df$zone1,levels=c("Above","Inside","Inside2","Below"))
