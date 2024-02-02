@@ -7,7 +7,8 @@ source("R/100_imp.epi0.R")
 dfw$zone1 <- factor(dfw$zone1,levels=c("Above","Inside","Inside2","Below","Wash"))
 
 ## load packages
-ld_pkgs <- c("tidyverse","ggplot2", "vegan", "lmerTest")
+ld_pkgs <- c("tidyverse","ggplot2", "vegan", "lmerTest","ggpp","ggtext",
+             "mvabund", "patchwork")
 vapply(ld_pkgs, library, logical(1L),
        character.only = TRUE, logical.return = TRUE)
 rm(ld_pkgs)
@@ -220,6 +221,8 @@ data.scores$zoneMon <- paste0(data.scores$zone1,data.scores$mon)
 rm(abv,bel,ins,ins2)
 
 ### MDS classic version ####
+#### version 1 ####
+# Need to tweak model to generate output for each month
 png(
   # file = "output/figs/epi.MDS.23.Sep.png",
   file = "output/figs/epi.MDS.23.Oct.png",
@@ -261,10 +264,51 @@ ggplot() +
 
 dev.off()
 
+#### version 2 ####
+# Alternative version
+png(
+  file = "output/figs/epi.MDS.23.SepOct.png",
+  width = 12 * ppi,
+  height = 8 * ppi,
+  res = ppi
+  )
+ggplot() +
+  geom_hline(yintercept = 0, colour = "grey") +
+  geom_vline(xintercept = 0, colour = "grey") +
+  geom_text(data = species.scores,
+            aes(x = NMDS1, y = NMDS2,
+                label = species),
+            alpha = 0.5) + # add the species labels
+  geom_point(data = data.scores,
+             aes(
+               x = NMDS1,
+               y = NMDS2,
+               shape = depth,
+               fill = zone1,
+               colour=mon),
+             size = 7,
+             show.legend = FALSE,
+             stroke=1.5 #control border thickness of points
+  ) +
+  scale_colour_manual("Month", values = c("red","black")) +
+  scale_shape_manual("Depth",values = rep(c(21,24,22),2))+
+  scale_fill_manual("Zone", values = cbPalette) +
+  coord_fixed()+
+  # geom_text_npc(aes(npcx = .99, npcy = .99, label=paste("September")))+
+  geom_text_npc(aes(npcx = .99, npcy = .99, label=paste("Stress = ",
+                                                        round(ord$stress, 3))))+
+  guides(colour = "none")+
+  # facet_wrap(.~mon)
+  labs(
+    title = paste0("Nonmetric Multidimensional Scaling plot of epifauna recorded in ",cur.yr),
+    caption="Based on epibenthic beam trawls.<br>'Presence-only' taxon scores replaced with values of '1'")+
+  theme(plot.caption = element_markdown(lineheight = 1.2))
+dev.off()
+
 # ADONIS  (Permanova) ####
-ano_epiinf <- adonis2(dat ~ met$zone1,
-                      permutations = perm)
-saveRDS(ano_epiinf,file="output/models/epiadonis2023.Rdat")
+# ano_epiinf <- adonis2(dat ~ met$zone1,
+#                       permutations = perm)
+# saveRDS(ano_epiinf,file="output/models/epiadonis2023.Rdat")
 (ano_epiinf <- readRDS(file="output/models/epiadonis2023.Rdat"))
 ### is P <0.05?
 ano_epiinf[["Pr(>F)"]][1] <0.05 ###Is P<0.05?
@@ -274,6 +318,22 @@ ano_epiinf[["Pr(>F)"]][1] <0.05 ###Is P<0.05?
 write.csv(ano_epiinf,
           file="output/models/ano_epiinf.csv",
           row.names=TRUE)
+rm(ano_epiinf)
+
+# ADONIS  (Permanova) ####
+# ano_epiinf2 <- adonis2(dat ~ met$zone1*met$depth*met$mon,
+#                       permutations = perm)
+# saveRDS(ano_epiinf2, file="output/models/epiadonis2023_full.Rdat")
+(ano_epiinf2 <- readRDS(file="output/models/epiadonis2023_full.Rdat"))
+### is P <0.05?
+ano_epiinf2[["Pr(>F)"]][1] <0.05 ###Is P<0.05?
+
+###output model summaries
+###full model
+write.csv(ano_epiinf2,
+          file="output/models/ano_epiinf.csv",
+          row.names=TRUE)
+
 
 # MVABUND version ####
 cur_spp <- mvabund(dat)
@@ -285,7 +345,7 @@ mvpl <- mvabund::meanvar.plot(cur_spp, add.trendline=TRUE,
                               xlab="Mean",
                               ylab="Variance",
                               table=TRUE
-)
+                              )
 
 # Step 1: Find the minimum and maximum values
 min_value <- min(mvpl[,2])
@@ -304,12 +364,16 @@ dev.off()
 
 rm(min_value,max_value,min_order,max_order,orders_of_magnitude_covered,ttl,sbtt)
 
-mod1 <- manyglm(cur_spp ~ met$zone1, family="poisson")
-plot(mod1)
+# mod1_pois <- manyglm(cur_spp ~ met$zone1, family="poisson")
+# plot(mod1_pois)
+mod1_nb <- manyglm(cur_spp ~ met$zone1, family="negative_binomial")
+plot(mod1_nb)
+# AIC(mod1_pois,mod1_nb)
 
-mod2 <- manyglm(cur_spp ~ met$zone1*met$depth, family="negative_binomial")
-plot(mod2)
-summary(mod2)
+# mod2 <- manyglm(cur_spp ~ met$zone1*met$depth, family="negative_binomial")
+# plot(mod2)
+# 
+# summary(mod2)
 
 # anova_mod2 <- mvabund::anova.manyglm(mod2,p.uni = "adjusted")
 # saveRDS(anova_mod2,file="output/models/epi.2023.mvabund.Rdat")
@@ -322,3 +386,21 @@ summary(mod3)
 # anova_mod3 <- mvabund::anova.manyglm(mod3,p.uni = "adjusted")
 # saveRDS(anova_mod3,file="output/models/epi.2023.mvabund_mod3.Rdat")
 (res.binary <- readRDS("output/models/epi.2023.mvabund_mod3.Rdat"))
+
+# Tidy up ####
+# unload packages
+detach("package:mvabund", unload=TRUE)
+detach("package:patchwork", unload=TRUE)
+detach("package:ggtext", unload=TRUE)
+detach("package:ggpp", unload=TRUE)
+detach("package:lmerTest", unload=TRUE)
+detach("package:vegan", unload=TRUE)
+detach("package:ggplot2", unload=TRUE)
+detach("package:tidyverse", unload=TRUE)
+
+# remove data
+rm(list = ls(pattern = "^mod"))
+rm(list = ls(pattern = "^df"))
+rm(list = ls(pattern = "^cbPal"))
+rm(dat,fol, ppi, cur.yr,gisfol,perm,ord,res.binary,ano_epiinf2,cur_spp,
+   data.scores,met,mvpl,species.scores)
