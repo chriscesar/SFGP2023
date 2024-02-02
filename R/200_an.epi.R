@@ -65,10 +65,10 @@ rm(tmp, S)
 
 ### explore data for current year ####
 # tax rich
-dfw %>% 
-  filter(., year == cur.yr) %>% 
-  dplyr::select(.,c(1:5,N:S)) %>% 
-  View(.)
+# dfw %>% 
+#   filter(., year == cur.yr) %>% 
+#   dplyr::select(.,c(1:5,N:S)) %>% 
+#   View(.)
 
 # RUN MODELS #####
 ### amend structure to focus models on Inside
@@ -119,7 +119,9 @@ S <- ggplot(data = dfw, aes(y = S, x = year, fill = zone1))+
   geom_hline(yintercept = min(dfw$S,na.rm = TRUE),colour="grey",linetype="dotted")+
   geom_hline(yintercept = max(dfw$S,na.rm = TRUE),colour="grey",linetype="dotted")+
   geom_boxplot(aes(group=year))+
+  # geom_jitter(alpha=0.6)+
   geom_smooth(method = "loess", colour = "red", span = .9)+
+  # geom_smooth(method = "loess", span = .9, aes(group=mon, col=mon))+
   # geom_smooth(method = "gam", colour = "red", span = .9)+
   facet_grid(depth~zone1)+
   scale_colour_manual(name = "", values=cbPalette)+
