@@ -63,6 +63,11 @@ dfwcur <- dfw[dfw$year==cur.yr,]
 #reorder factors for comparison
 dfwcur$zone1 <- factor(dfwcur$zone1, levels = c("Inside","Above","Inside2","Below"))
 
+dfwcur %>% 
+  dplyr::select(.,c(1:5,Crangon_all)) %>% 
+  filter(.,mon=="Oct") %>% 
+  View(.)
+
 # View(dfwcur[,c(1:5, ncol(dfwcur))])
 plot(performance::check_distribution(dfwcur$Crangon_all)) # NegBin
 # car::Anova(mod01<-lmer(Crangon_all ~ zone1 +
@@ -105,12 +110,83 @@ df %>%
 effsize::cohen.d(df$len.mm,df$mon)## Cohen's d indicates 'large' effect of survey month
 rm(m1)
 
+#############################################
+# plot abundances for current year
+dfcra <- dfw[dfw$year==cur.yr,]
 
+dfcra$zone1 <- factor(dfcra$zone1, levels=c("Above","Inside","Inside2","Below"))
+dfcra$transect <- factor(dfcra$transect,levels=c("T1","T4","T8","T13","T20"))
+dfcra$trmon <- paste0(dfcra$transect,".",dfcra$mon)
+dfcra$trmon <- factor(dfcra$trmon, levels=c(
+  "T1.Sep","T1.Oct","T4.Sep","T4.Oct","T8.Sep","T8.Oct","T13.Sep","T13.Oct",
+  "T20.Sep","T20.Oct"))
 
+png(file = "output/figs/epi.cra.abnd.cur.png",
+    width=12*ppi, height=6*ppi, res=ppi)
+dfcra %>% 
+  filter(.,year==cur.yr) %>% 
+  ggplot(.,aes(x=trmon,y=log(Crangon_all+1), fill=zone1))+
+  geom_bar(stat = "identity",
+           colour=1)+
+  facet_wrap(.~depth)+
+  scale_fill_manual(values=cbPalette)+
+  ylab("Log(Crangon abundance+1)")+
+  theme(legend.title = element_blank(),
+        axis.title.x = element_blank(),
+        strip.text = element_text(face="bold"),
+        axis.title.y = element_text(face="bold"),
+        strip.text.x = element_text(size = 12),
+        axis.text.x = element_text(
+          angle = 90,
+          hjust=1,
+          vjust=0.5))
+dev.off()
+rm(dfcra)
 
+### Crangon time series ####
+## fix factors
+dfw$zone1 <- factor(dfw$zone1, levels = c("Above","Inside","Inside2","Below"))
+##standardise months
+dfw$month <- ifelse(dfw$mon == "Oct.1", "Oct",
+  ifelse(dfw$mon == "Oct.2", "Oct",
+         ifelse(dfw$mon == "Oct", "Oct",
+         ifelse(dfw$mon == "October", "Oct",
+                ifelse(dfw$mon == "Dec", "Dec",
+                       ifelse(dfw$mon == "Sep", "Sep",
+                              ifelse(dfw$mon == "Nov", "Nov",
+                ifelse(dfw$mon == "September", "Sep","Oct"))))))))
+## this replaces unrecorded sampling months with the value "Oct"
 
+#create date variable
+dfw$day <- ifelse(dfw$mon=="Oct.2",15,1)
+dfw$monNum <- match(dfw$month,month.abb)
 
+dfw$month <- factor(dfw$month,
+                    levels=c("Sep","Oct","Nov","Dec","NA"))
+dfw$date <- as.Date(paste(dfw$day,match(dfw$month,month.abb),dfw$year,
+                          sep = "/"),
+                    format = "%d/%m/%Y")
 
+png(file = "output/figs/epi.cra.abnd.ts.png",
+    width=12*ppi, height=6*ppi, res=ppi)
+dfw %>% 
+  filter(.,year<cur.yr) %>%
+  ggplot(.,aes(x=date,
+               y=log(Crangon_all+1)))+
+  geom_point()+
+  facet_grid(depth~zone1)+
+  geom_smooth(
+    # method="gam",
+    method="loess", span=.99,
+    aes(colour=zone1),
+    show.legend = FALSE)+
+  scale_colour_manual(values=cbPalette)+
+  ylab("Log(Crangon abundance+1)")+
+  theme(legend.title = element_blank(),
+        axis.title.x = element_blank(),
+        strip.text = element_text(face="bold",size = 12),
+        axis.title.y = element_text(face="bold"))
+dev.off()
 
 ###############################################################################
 ###############################################################################
