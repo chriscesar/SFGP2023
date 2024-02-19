@@ -345,6 +345,22 @@ dev.off()
 
 glimpse(cur_dat)
 
+cur_dat %>% 
+  filter(.,type=="cone") %>% 
+  mutate(value=as.numeric(value)) %>% 
+  group_by(.,transect,shore,year) %>% 
+  summarise(mean = mean(value, na.rm=TRUE),
+            sd = sd(value, na.rm=TRUE)) %>% 
+  View(.)
+
+cur_dat %>% 
+  filter(.,type=="angle") %>% 
+  mutate(value=as.numeric(value)) %>% 
+  group_by(.,transect,shore,year) %>% 
+  summarise(mean = mean(value, na.rm=TRUE),
+            sd = sd(value, na.rm=TRUE)) %>% 
+  View(.)
+
 # smry$value <- as.numeric(smry$value)
 
 # smry <- smry %>% 
