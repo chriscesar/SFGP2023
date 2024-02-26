@@ -104,7 +104,7 @@ ggplot(data = ifca, aes(x = year, y = tonnes, fill = bed))+
   xlab("") + ylab("Cockle stock estimate (tonnes)")+
   labs(title="Estimated adult and juvenile cockle stock biomasses within 2 cockle beds in the north of The Wash",
        subtitle = "Estimates provided by the Eastern Inshore Fisheries and Conservation Authority",
-       caption = "Red lines indicate loess smooth with span = 0.9. Ribbons indicate Standard Errors")+
+       caption = "Red lines indicate loess smooth with span = 0.9. Ribbons indicate Standard Errors\nNo stock estimates were conducted in 2020")+
   theme(strip.text.x = element_text(size = 14),
         strip.text.y = element_text(size = 14),
         strip.text = element_text(face="bold"))+
@@ -127,34 +127,34 @@ ggplot(data = tot, aes(x = year, y = tot.cockle, fill = bed))+
   xlab("") + ylab("Cockle stock estimate (tonnes)")+
   labs(title="Estimated total cockle stock biomasses within 2 cockle beds in the north of The Wash",
        subtitle = "Estimates provided by the Eastern Inshore Fisheries and Conservation Authority",
-       caption = "Red lines indicate loess smooth with span = 0.9. Ribbons indicate Standard Errors")+
+       caption = "Red lines indicate loess smooth with span = 0.9. Ribbons indicate Standard Errors\nNo stock estimates were conducted in 2020")+
   theme(strip.text.x = element_text(size = 14),
         strip.text.y = element_text(size = 14))+
   coord_cartesian(ylim=c(0, NA))
 dev.off()
 
-### combined: interpolated
-png(file = "output/figs/ifca.tot.ts.interp.png",
-    width=12*ppi, height=6*ppi, res=ppi)
-ggplot(data = tot.interp, aes(x = year, y = tot.cockle, fill = bed))+
-  geom_smooth(method = "loess", colour = "red", span = 0.9)+
-  geom_point(size = 2)+
-  facet_grid(bed~.)+
-  theme(legend.position="none",
-        strip.text.x = element_text(size = 12),
-        strip.text.y = element_text(size = 12))+
-  scale_colour_manual(name = "", values=cbPalette)+
-  scale_fill_manual(name = "", values=cbPalette)+
-  scale_x_continuous(breaks = seq(2004, 2022, by = 2))+
-  scale_y_continuous(limits=c(NA,NA),expand=c(0,0))+
-  xlab("") + ylab("Cockle stock estimate (tonnes)")+
-  labs(title="Estimated total cockle stock biomasses within 2 cockle beds in the north of The Wash",
-       subtitle = "Estimates provided by the Eastern Inshore Fisheries and Conservation Authority",
-       caption = "Red lines indicate loess smooth with span = 0.9. Ribbons indicate Standard Errors")+
-  theme(strip.text.x = element_text(size = 14),
-        strip.text.y = element_text(size = 14))+
-  coord_cartesian(ylim=c(0, NA))
-dev.off()
+# ### combined: interpolated
+# png(file = "output/figs/ifca.tot.ts.interp.png",
+#     width=12*ppi, height=6*ppi, res=ppi)
+# ggplot(data = tot.interp, aes(x = year, y = tot.cockle, fill = bed))+
+#   geom_smooth(method = "loess", colour = "red", span = 0.9)+
+#   geom_point(size = 2)+
+#   facet_grid(bed~.)+
+#   theme(legend.position="none",
+#         strip.text.x = element_text(size = 12),
+#         strip.text.y = element_text(size = 12))+
+#   scale_colour_manual(name = "", values=cbPalette)+
+#   scale_fill_manual(name = "", values=cbPalette)+
+#   scale_x_continuous(breaks = seq(2004, 2022, by = 2))+
+#   scale_y_continuous(limits=c(NA,NA),expand=c(0,0))+
+#   xlab("") + ylab("Cockle stock estimate (tonnes)")+
+#   labs(title="Estimated total cockle stock biomasses within 2 cockle beds in the north of The Wash",
+#        subtitle = "Estimates provided by the Eastern Inshore Fisheries and Conservation Authority",
+#        caption = "Red lines indicate loess smooth with span = 0.9. Ribbons indicate Standard Errors")+
+#   theme(strip.text.x = element_text(size = 14),
+#         strip.text.y = element_text(size = 14))+
+#   coord_cartesian(ylim=c(0, NA))
+# dev.off()
 
 ###==================================================####
 # Compare correlation of adult & juvenile cockles    ####
@@ -162,13 +162,13 @@ dev.off()
 ### split to 2 dataframes
 ad <- subset(ifca, class == "Adult")
 ju <- subset(ifca, class == "Juvenile")
-acf(ad$tonnes, na.action = na.pass) 
-acf(ju$tonnes, na.action = na.pass) #no trend for 2023 dataset
+acf(ad$tonnes, na.action = na.pass) # positive correlation at lag=1
+acf(ju$tonnes, na.action = na.pass) # no trend for 2023 dataset
 
 ad.interp <- subset(ifca.interp, class == "Adult")
 ju.interp <- subset(ifca.interp, class == "Juvenile")
-acf(ad.interp$tonnes, na.action = na.pass)
-acf(ju.interp$tonnes, na.action = na.pass) #no trend for 2023 dataset
+acf(ad.interp$tonnes, na.action = na.pass) # positive correlation at lag=1
+acf(ju.interp$tonnes, na.action = na.pass) # no trend for 2023 dataset
 
 ###=====================##
 ### Cross-correlation ####
@@ -207,13 +207,13 @@ ccf(ju.interp$tonnes,ad.interp$tonnes, main = "Juvenile vs Adult",
 
 png(file = "output/figs/ifca.juv&adult.ccf.bothbeds.png",
     width=12*ppi, height=6*ppi, res=ppi)
-ccf(ju$tonnes,ad$tonnes, main = "Juvenile vs Adult", na.action = na.pass)
+ccf(ju$tonnes,ad$tonnes, main = "Cross correlation of juvenile and adult cockle stocks", na.action = na.pass)
 dev.off()
 
-png(file = "output/figs/ifca.juv&adult.ccf.bothbeds.interp.png",
-    width=12*ppi, height=6*ppi, res=ppi)
-ccf(ju.interp$tonnes,ad.interp$tonnes, main = "Juvenile vs Adult", na.action = na.pass)
-dev.off()
+# png(file = "output/figs/ifca.juv&adult.ccf.bothbeds.interp.png",
+#     width=12*ppi, height=6*ppi, res=ppi)
+# ccf(ju.interp$tonnes,ad.interp$tonnes, main = "Cross correlation of juvenile and adult cockle stocks", na.action = na.pass)
+# dev.off()
 
 ###===================##
 ### Individual beds ####
@@ -225,7 +225,7 @@ png(file = "output/figs/ifca.juv&adult.Wrangle.ccf.png",
     width=12*ppi, height=6*ppi, res=ppi)
 par(mar = c(4,4,4,0.2))
 ccf(ju.wr$tonnes,ad.wr$tonnes,
-    main = "Juvenile vs Adult\nWrangle Flats",
+    main = "Cross correlation of juvenile and adult cockle stocks\nWrangle Flats",
     na.action = na.pass)
 dev.off()
 
@@ -235,36 +235,37 @@ png(file = "output/figs/ifca.juv&adult.Friskney.ccf.png",
     width=12*ppi, height=6*ppi, res=ppi)
 par(mar = c(4,4,4,0.2))
 ccf(ju.fr$tonnes,ad.fr$tonnes,
-    main = "Juvenile vs Adult\nFriskney Flats", na.action = na.pass)
+    main = "Cross correlation of juvenile and adult cockle stocks\nFriskney Flats", na.action = na.pass)
 dev.off()
 
 ### Interpolated
 ad.wr.interp <- subset(ad.interp, bed == "Wrangle")
 ju.wr.interp <- subset(ju.interp, bed == "Wrangle")
 
-png(file = "output/figs/ifca.juv&adult.Wrangle.ccf.interp.png",
-    width=12*ppi, height=6*ppi, res=ppi)
-par(mar = c(4,4,4,0.2))
-ccf(ju.wr.interp$tonnes,ad.wr.interp$tonnes,
-    main = "Juvenile vs Adult\nWrangle Flats", na.action = na.pass)
-dev.off()
-ad.fr.interp <- subset(ad.interp, bed == "Friskney")
-ju.fr.interp <- subset(ju.interp, bed == "Friskney")
-png(file = "output/figs/ifca.juv&adult.Friskney.ccf.interp.png",
-    width=12*ppi, height=6*ppi, res=ppi)
-par(mar = c(4,4,4,0.2))
-ccf(ju.fr.interp$tonnes,ad.fr.interp$tonnes,
-    main = "Juvenile vs Adult\nFriskney Flats", na.action = na.pass)
-dev.off()
+# png(file = "output/figs/ifca.juv&adult.Wrangle.ccf.interp.png",
+#     width=12*ppi, height=6*ppi, res=ppi)
+# par(mar = c(4,4,4,0.2))
+# ccf(ju.wr.interp$tonnes,ad.wr.interp$tonnes,
+#     main = "Cross correlation of juvenile and adult cockle stocks\nWrangle Flats", na.action = na.pass)
+# dev.off()
+# 
+# ad.fr.interp <- subset(ad.interp, bed == "Friskney")
+# ju.fr.interp <- subset(ju.interp, bed == "Friskney")
+# png(file = "output/figs/ifca.juv&adult.Friskney.ccf.interp.png",
+#     width=12*ppi, height=6*ppi, res=ppi)
+# par(mar = c(4,4,4,0.2))
+# ccf(ju.fr.interp$tonnes,ad.fr.interp$tonnes,
+#     main = "Cross correlation of juvenile and adult cockle stocks\nFriskney Flats", na.action = na.pass)
+# dev.off()
 
 ##both plots
 par(mfrow = c(2, 1));par(mar = c(2,4,.5,0.2))
 wr.ccf <- ccf(ju.wr$tonnes,ad.wr$tonnes, main = "", na.action = na.pass)
 fr.ccf <- ccf(ju.fr$tonnes,ad.fr$tonnes, main = "", na.action = na.pass)
-wr.ccf.interp <- ccf(ju.wr.interp$tonnes,ad.wr.interp$tonnes, main = "",
-                     na.action = na.pass)
-fr.ccf.interp <- ccf(ju.fr.interp$tonnes,ad.fr.interp$tonnes, main = "",
-                     na.action = na.pass)
+# wr.ccf.interp <- ccf(ju.wr.interp$tonnes,ad.wr.interp$tonnes, main = "",
+#                      na.action = na.pass)
+# fr.ccf.interp <- ccf(ju.fr.interp$tonnes,ad.fr.interp$tonnes, main = "",
+#                      na.action = na.pass)
 
 ### normal ###
 png(file = "output/figs/ifca.juv&adult.each.ccf.png",
@@ -287,41 +288,41 @@ dev.off()
 # i.e., a strong juvenile cohort is a reasonable predictor of adults the following year
 
 ### interpolated###
-png(file = "output/figs/ifca.juv&adult.each.ccf.interp.png",
-    width=12*ppi, height=6*ppi, res=ppi)
-par(mfrow=c(2,1))
-par(mar = c(2,4,.5,0.2))
-plot(fr.ccf.interp,lwd=3,col="#d68e00")
-abline(v=0,col="light grey",lty=4)
-text(-8.25,0.75,"Friskney",cex=2)
-plot(wr.ccf.interp,lwd = 3,col="#008d62");
-abline(v=0,col="light grey",lty=4)
-text(-8.25,-0.37,"Wrangle",cex=2)
-dev.off()
+# png(file = "output/figs/ifca.juv&adult.each.ccf.interp.png",
+#     width=12*ppi, height=6*ppi, res=ppi)
+# par(mfrow=c(2,1))
+# par(mar = c(2,4,.5,0.2))
+# plot(fr.ccf.interp,lwd=3,col="#d68e00")
+# abline(v=0,col="light grey",lty=4)
+# text(-8.25,0.75,"Friskney",cex=2)
+# plot(wr.ccf.interp,lwd = 3,col="#008d62");
+# abline(v=0,col="light grey",lty=4)
+# text(-8.25,-0.37,"Wrangle",cex=2)
+# dev.off()
 
 ###=============##
 ### ACF PLOTS ####
 ###=============##
-png(file = "output/figs/ifca.acf.frisk.interp.png",
-    width=12*ppi, height=6*ppi, res=ppi)
-par(mfrow = c(2,1))
-par(mar = c(4, 4, 0.5, 0.2))
-acf(ad.fr.interp$tonnes,main = "", na.action = na.pass)
-text(x = 9.25, y = -0.37,"Friskney Adults", adj=0)
-acf(ju.fr.interp$tonnes,main = "", na.action = na.pass)
-text(x = 9.25, y = -0.37,"Friskney Juveniles", adj=0)
-dev.off()
-
-png(file = "output/figs/ifca.acf.wrang.interp.png",
-    width = 12 * ppi, height = 6 * ppi, res = ppi)
-par(mfrow = c(2,1))
-par(mar = c(4, 4, 0.5, 0.2))
-acf(ad.wr.interp$tonnes,main="", na.action = na.pass)
-text(x = 9.25, y = -0.37,"Wrangle Adults", adj=0)
-acf(ju.wr.interp$tonnes,main="", na.action = na.pass)
-text(x = 9.25, y = -0.37,"Wrangle Juveniles", adj=0)
-dev.off()
-
+# png(file = "output/figs/ifca.acf.frisk.interp.png",
+#     width=12*ppi, height=6*ppi, res=ppi)
+# par(mfrow = c(2,1))
+# par(mar = c(4, 4, 0.5, 0.2))
+# acf(ad.fr.interp$tonnes,main = "", na.action = na.pass)
+# text(x = 9.25, y = -0.37,"Friskney Adults", adj=0)
+# acf(ju.fr.interp$tonnes,main = "", na.action = na.pass)
+# text(x = 9.25, y = -0.37,"Friskney Juveniles", adj=0)
+# dev.off()
+# 
+# png(file = "output/figs/ifca.acf.wrang.interp.png",
+#     width = 12 * ppi, height = 6 * ppi, res = ppi)
+# par(mfrow = c(2,1))
+# par(mar = c(4, 4, 0.5, 0.2))
+# acf(ad.wr.interp$tonnes,main="", na.action = na.pass)
+# text(x = 9.25, y = -0.37,"Wrangle Adults", adj=0)
+# acf(ju.wr.interp$tonnes,main="", na.action = na.pass)
+# text(x = 9.25, y = -0.37,"Wrangle Juveniles", adj=0)
+# dev.off()
+# 
 ######################################################
 # FROM HERE ####################
 # Awaiting update on annual nourishment volumes from FCRM/NEAS ###
@@ -333,7 +334,7 @@ vols <- droplevels(vols[vols$measure == "sand nourishment",])
 vols$sand_m3 <- vols$value
 
 ### subset data
-vols <- subset(vols, year<2023 & year>2003)
+vols <- subset(vols, year<2024 & year>2003)
 tot.fr <- subset(tot, bed == "Friskney")
 tot.wr <- subset(tot, bed == "Wrangle")
 tot.fr.interp <- subset(tot.interp, bed == "Friskney")
@@ -363,17 +364,17 @@ abline(v = 0, col = "light grey", lty = 4)
 text(-8.75, -0.35, "Wrangle", cex = 1.5) #b) = WRANGLE
 dev.off()
 
-png(file = "output/figs/ifca.ccf.totcocklVSed.interp.png",
-    width = 12 * ppi, height = 6 * ppi, res = ppi)
-par(mfrow = c(2, 1))
-par(mar = c(4, 4, 0.5, 0.2))
-plot(sed.fr.interp, lwd = 3, col = "#d68e00")
-abline(v = 0, col = "light grey", lty = 4)
-text(-8.75, -0.35, "Friskney", cex = 1.5) #a) = FRISKNEY
-plot(sed.wr.interp, lwd = 3, col = "#008d62")
-abline(v = 0, col = "light grey", lty = 4)
-text(-8.75, -0.35, "Wrangle", cex = 1.5) #b) = WRANGLE
-dev.off()
+# png(file = "output/figs/ifca.ccf.totcocklVSed.interp.png",
+#     width = 12 * ppi, height = 6 * ppi, res = ppi)
+# par(mfrow = c(2, 1))
+# par(mar = c(4, 4, 0.5, 0.2))
+# plot(sed.fr.interp, lwd = 3, col = "#d68e00")
+# abline(v = 0, col = "light grey", lty = 4)
+# text(-8.75, -0.35, "Friskney", cex = 1.5) #a) = FRISKNEY
+# plot(sed.wr.interp, lwd = 3, col = "#008d62")
+# abline(v = 0, col = "light grey", lty = 4)
+# text(-8.75, -0.35, "Wrangle", cex = 1.5) #b) = WRANGLE
+# dev.off()
 
 ### Tidy up ####
 rm(list = ls(pattern = "^ad"))
