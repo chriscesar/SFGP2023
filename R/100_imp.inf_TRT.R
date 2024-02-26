@@ -56,7 +56,8 @@ if (!file.exists(destination_file)) {
 
 # import data ####
 df0 <- as_tibble(read_xlsx(destination_file,
-                           sheet = "traitsOutUSE"))
+                           sheet = "traitsOutUSE",
+                           guess_max = 10000))
 
 # drop nuicance/non-marine taxa ####
 df <- df0 %>%
