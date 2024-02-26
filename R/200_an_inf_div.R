@@ -493,6 +493,34 @@ print(d);
 dev.off();
 rm(d)
 
+### export biomass for report appendices
+## TO DO: calculate total biomass by sample
+df_biom %>% 
+  filter(year==cur.yr) %>% 
+  filter(mesh=="1.0mm") %>% 
+  dplyr::select(.,-biomass_raw_g, -units, -code, -Comment) %>%
+  ungroup() %>% 
+  ### widen, fill with zeroes, re-lengthen
+  pivot_wider(names_from = taxon, values_from = biomass_g_per_m2,
+              values_fill=list(biomass_g_per_m2 = 0)) %>% 
+  pivot_longer(cols = AFAUNAL:"Pontocrates arenarius",
+               names_to = "taxon",
+               values_to = "biomass_g_per_m2") %>% 
+  dplyr::select(.,-rep) %>%
+  group_by(across(c(!biomass_g_per_m2))) %>% 
+  summarise(mb=mean(biomass_g_per_m2),
+            .groups = "drop")->df_biom_w
+
+
+df_biom_w$yr.trn.sh.meth <- paste0(df_biom_w$year,".",df_biom_w$mesh,".",
+                                   df_biom_w$transect,".",df_biom_w$shore)
+
+df_biom_w <- df_biom_w %>%
+  dplyr::select(.,-c(year,mesh,transect,shore)) %>% 
+  pivot_wider(.,names_from = yr.trn.sh.meth,values_from = mb)
+
+write.csv(df_biom_w,file="output/dfw_biomass.csv")
+
 ## Tidy up ####
 rm(list = ls(pattern = "^df"))
 rm(cbPalette,cbPaletteTxt, ppi,tmz,perm,cur.yr,x,
