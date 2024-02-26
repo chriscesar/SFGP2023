@@ -110,7 +110,17 @@ df %>%
 effsize::cohen.d(df$len.mm,df$mon)## Cohen's d indicates 'large' effect of survey month
 rm(m1)
 
-#############################################
+### COMPARE LENGTHS BETWEEN ZONES ####
+## reorganise factors
+summary(m2 <- lmerTest::lmer(len.mm ~ zone1+(1|mon)+(1|site),data=dd))
+visreg::visreg(m2)
+anova(m2)
+
+d <- as.data.frame(ls_means(m2, test.effs = "Group",pairwise = TRUE))
+d[d$`Pr(>|t|)`<0.051,]
+
+rm(m2)
+
 # plot abundances for current year
 dfcra <- dfw[dfw$year==cur.yr,]
 
@@ -195,21 +205,11 @@ dev.off()
 ###############################################################################
 
 ### Compare length vs zone ####
-plot(performance::check_distribution(dd$len.mm))#tweedie
-
-len_mod <- lmer(len.mm ~ zone1 + (1|site) + (1|mon),data=dd)
-summary(len_mod)
-anova(len_mod)
-d <- as.data.frame(ls_means(len_mod, test.effs = "Group",pairwise = TRUE))
-d[d$`Pr(>|t|)`<0.051,]
-sjPlot::plot_model(len_mod,show.values=TRUE, show.p=TRUE)
-visreg::visreg(len_mod)
-rm(len_mod,d)
 
 df$zone1 <- factor(df$zone1,levels=c("Above","Inside","Inside2","Below"))
 
 ### plot carapaces - current ####
-png(file = "output/figs/epi/epi.shr.len.2022.png",
+png(file = "output/figs/epi.shr.len.2023.png",
     width=12*ppi, height=6*ppi, res=ppi)
 i <- ggplot(data=df, aes(x = zone1, y=len.mm, fill = zone1))+
   # geom_violin(show.legend=FALSE)+
@@ -219,12 +219,16 @@ i <- ggplot(data=df, aes(x = zone1, y=len.mm, fill = zone1))+
   scale_fill_manual(values=cbPalette)+
   theme(legend.title=element_blank())+
   facet_wrap(~site)+
-  xlab("")+ylab("Carapace length (mm)")+ylim(0,NA)#+
+  xlab("")+ylab("Carapace length (mm)")+ylim(0,NA) +
+  theme(legend.title = element_blank(),
+        axis.title.x = element_blank(),
+        strip.text = element_text(face="bold",size = 12),
+        axis.title.y = element_text(face="bold"))
 # coord_flip()
 print(i)
 dev.off()
 
-pdf("output/figs/epi/epi.shr.len.2022.pdf", width=14,height = 8)
+pdf("output/figs/epi.shr.len.2023.pdf", width=14,height = 8)
 print(i)
 dev.off();rm(i)
 
@@ -316,6 +320,23 @@ rm(wt_mod,d)
 # saveRDS(df.cra, file = "output/data/data_exports/epi.cra.ts_20.rds")### rds-for export
 # write.csv(df.cra, file = "data/processed/csv/epi.cra.ts_20.csv",row.names=FALSE)### csv-local version
 # write.csv(df.cra, file = "output/data/data_exports/epi.cra.ts_20.csv",row.names=FALSE)### csv-for export
+
+# Pandalus ####
+dfw %>% 
+  select(.,1:5,starts_with("Pandalus")) %>% 
+  filter(.,year==cur.yr) -> df.pan
+
+mean(df.pan$`Pandalus montagui`);sd(df.pan$`Pandalus montagui`)
+pan_mod <- lmer(`Pandalus montagui` ~ zone1 + (1|depth) + (1|mon), data=df.pan)
+pan_mod <- lm(`Pandalus montagui` ~ zone1*depth*mon, data=df.pan)
+anova(pan_mod)
+summary(pan_mod)
+d <- as.data.frame(ls_means(pan_mod, test.effs = "Group",pairwise = TRUE))
+d[d$`Pr(>|t|)`<0.051,]
+sjPlot::plot_model(wt_mod,show.values=TRUE, show.p=TRUE)
+rm(wt_mod,d)
+
+
 
 #### tidy up ####
 detach("package:tidyverse", unload=TRUE)
