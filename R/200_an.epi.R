@@ -389,6 +389,19 @@ summary(mod3)
 # saveRDS(anova_mod3,file="output/models/epi.2023.mvabund_mod3.Rdat")
 (res.binary <- readRDS("output/models/epi.2023.mvabund_mod3.Rdat"))
 
+### export current year's taxa for appendices
+remove_zero_sum_numeric_cols <- function(data) {
+  numeric_cols <- sapply(data, is.numeric)
+  sum_zero <- sapply(data[, numeric_cols], sum) == 0
+  data %>%
+    select(-which(numeric_cols)[sum_zero])
+}
+
+# Apply the function to your dataframe
+result <- remove_zero_sum_numeric_cols(dfcur)
+write.csv(result, file = "output/dfw_epi.csv",row.names = FALSE)
+
+
 # Tidy up ####
 # unload packages
 detach("package:mvabund", unload=TRUE)
@@ -405,4 +418,4 @@ rm(list = ls(pattern = "^mod"))
 rm(list = ls(pattern = "^df"))
 rm(list = ls(pattern = "^cbPal"))
 rm(dat,fol, ppi, cur.yr,gisfol,perm,ord,res.binary,ano_epiinf2,cur_spp,
-   data.scores,met,mvpl,species.scores)
+   data.scores,met,mvpl,species.scores,result,remove_zero_sum_numeric_cols)
