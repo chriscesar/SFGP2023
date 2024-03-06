@@ -268,7 +268,7 @@ dev.off();rm(i)
 #### COMPARE BIOMASS BETWEEN SURVEYS ####
 ### WEIGHTS ####
 mean(df$wt.g)
-se(df$wt.g)
+#se(df$wt.g)
 sd(df$wt.g)
 
 wt_mod <- lmer(wt.g ~ zone1 + (1|site) + (1|mon), data=dd)
@@ -331,12 +331,10 @@ pan_mod <- lmer(`Pandalus montagui` ~ zone1 + (1|depth) + (1|mon), data=df.pan)
 pan_mod <- lm(`Pandalus montagui` ~ zone1*depth*mon, data=df.pan)
 anova(pan_mod)
 summary(pan_mod)
-d <- as.data.frame(ls_means(pan_mod, test.effs = "Group",pairwise = TRUE))
+# d <- as.data.frame(ls_means(pan_mod, test.effs = "Group",pairwise = TRUE))
 d[d$`Pr(>|t|)`<0.051,]
 sjPlot::plot_model(wt_mod,show.values=TRUE, show.p=TRUE)
 rm(wt_mod,d)
-
-
 
 #### tidy up ####
 detach("package:tidyverse", unload=TRUE)
