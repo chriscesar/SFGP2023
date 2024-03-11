@@ -14,7 +14,8 @@ The scripts within this repo perform the following tasks:
 * Produce graphical and statistical outputs to visualise analysis outputs
 
 ## Variables considered
-The analyses conducted cover a range of variables, encompassing intertidal and subtidal receptors
+The analyses conducted cover a range of variables, encompassing intertidal and subtidal receptors.
+Novel analyses for this year's report includes analysis of biological traits for intertidal time series data.
 
 ### General
 * Summary of annual nourishment activity/volume of sediment introduced
