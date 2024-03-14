@@ -30,7 +30,8 @@ if (!file.exists(destination_file)) {
 }
 
 df0 <- as_tibble(read_xlsx(destination_file,
-                           sheet = "dat_all"))
+                           sheet = "dat_all",
+                           guess_max = 10000))
 
 # drop nuicance/non-marine taxa ####
 df <- df0 %>%
@@ -47,7 +48,7 @@ df <- df %>%
   filter(!is.na(abundance)) %>%
   group_by(across(c(!abundance,!taxonReported))) %>% 
     # everything(), !(.x %in% c(abundance, taxonReported)))) %>% 
-  summarise(.,abundance=sum(abundance)) %>% ungroup()
+  summarise(.,abundance=sum(abundance), .groups = "drop") %>% ungroup()
 
 # calculate means across replicates and widen data for further analysis ####
 dfw <- df %>% 
@@ -74,7 +75,8 @@ dfw <- df %>%
     select(.,-rep,-yr.trn.sh.meth.rep) %>% ###drop 'rep' and code variables
   ### calculate mean across replicates:
   group_by(across(c(!abundance))) %>%
-  summarise(.,abundance=mean(abundance, na.rm = TRUE)) %>%
+  summarise(.,abundance=mean(abundance, na.rm = TRUE),
+            .groups = "drop") %>%
   ungroup() %>%
   ##re-widen:
   pivot_wider(.,names_from=taxon,values_from=abundance) %>% ungroup()
