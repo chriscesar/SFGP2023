@@ -23,10 +23,12 @@ cbPaletteTxt <- c(
   "#CC79A7", #204, 121, 167
   "#F0E442") #240, 228, 66
 
+cbPaletteshr <- c("#F15854","#B276B2","#B2912F","#4D4D4D")
+
 ppi <- 300 #figure resolution
 cur.yr <- 2023 #current year
 
-theme_set(ggthemes::theme_few())###set theme for all ggplot objects
+ggplot2::theme_set(ggthemes::theme_few())###set theme for all ggplot objects
 perm <- 9999 #number of permutations for analyses
 
 source("R/00_datfol.R")
