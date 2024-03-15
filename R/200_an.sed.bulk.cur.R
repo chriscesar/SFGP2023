@@ -19,7 +19,7 @@ df0$transect <- factor(df0$transect,levels=c("T1N","T1","T1S",
                                               "T15", "T17", "T20", "T21", "T22",
                                               "T23", "T24","T25","T26"))
                                               # "WA1"))
- 
+
 df0$shore <- factor(df0$shore,levels=c("Upper","Mid","Low","Surf"))
 df0$zone1 <- factor(df0$zone1,levels=c("Above","Inside","Inside2","Below"))
 
@@ -387,6 +387,10 @@ rm(srt,krt,skw)
 ### quick calcs for doc ####
 x <- prop.table(table(droplevels(df$SEDIMENT.NAME)))*100
 x[order(-x)]
+
+### mean phi values
+View(df[order(-df$MEAN_folkWard_phi),c(1:10,31)])
+
 
 # Tidy up ####
 rm(list = ls(pattern = "df"))
