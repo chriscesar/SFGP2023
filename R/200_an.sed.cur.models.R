@@ -52,7 +52,7 @@ mnmx[,c(1:7,31)]
 phi.mean;phi.se
 phi.mean.s;phi.se.s
 tm <- phi.mean.sz[,c(1:3)]
-# tm <- cbind(tm,phi.se.sz$`df0$MEAN_folkWard_phi`) ## breaks?!
+tm <- cbind(tm,phi.se.sz$`df$MEAN_folkWard_phi`) ## breaks?!
 
 ### zones
 anova(mod2 <- lmer(MEAN_folkWard_phi ~ zone1 + (1|shore) , data = df,REML=TRUE))
@@ -213,6 +213,36 @@ d <- as.data.frame(lmerTest::ls_means(mod2, test.effs = "Group",pairwise = TRUE)
 d[d$`Pr(>|t|)`<0.051,]
 sjPlot::plot_model(mod2,show.values=TRUE, show.p=TRUE)
 rm(mod2,d)
+
+### generate summary table for current year
+df %>% 
+  dplyr::select(.,zone1,shore,
+                MEAN_folkWard_phi,
+                D10_phi,
+                D50_phi,
+                D90_phi,
+                SORTING_folkWard_phi,
+                SKEWNESS_folkWard_phi,
+                KURTOSIS_folkWard_phi
+                ) %>% 
+  group_by(zone1,shore) %>% 
+  summarise(mean_phi=round(mean(MEAN_folkWard_phi),2),
+            mean_phi_sd=round(sd(MEAN_folkWard_phi),2),
+            mean_D10_phi=round(mean(D10_phi),2),
+            mean_D10_phi_sd=round(sd(D10_phi),2),
+            mean_D50_phi=round(mean(D50_phi),2),
+            mean_D50_phi_sd=round(sd(D50_phi),2),
+            mean_D90_phi=round(mean(D90_phi),2),
+            mean_D90_phi_sd=round(sd(D90_phi),2),
+            mean_Sorting_phi=round(mean(SORTING_folkWard_phi),2),
+            mean_Sorting_phi_sd=round(sd(SORTING_folkWard_phi),2),
+            mean_Skew_phi=round(mean(SKEWNESS_folkWard_phi),2),
+            mean_Skew_phi_sd=round(sd(SKEWNESS_folkWard_phi),2),
+            mean_Kurtosis_phi=round(mean(KURTOSIS_folkWard_phi),2),
+            mean_Kurtosis_phi_sd=round(sd(KURTOSIS_folkWard_phi),2),
+            .groups = "drop") -> summaryTbl
+
+write.csv(summaryTbl, file="output/sed.bulk.summary.csv",row.names = FALSE)
 
 ### tidy up ####
 rm(list = ls(pattern = "^df"))
