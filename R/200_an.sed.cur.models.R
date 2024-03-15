@@ -52,7 +52,7 @@ mnmx[,c(1:7,31)]
 phi.mean;phi.se
 phi.mean.s;phi.se.s
 tm <- phi.mean.sz[,c(1:3)]
-tm <- cbind(tm,phi.se.sz$`df0$MEAN_folkWard_phi`) ## breaks?!
+# tm <- cbind(tm,phi.se.sz$`df0$MEAN_folkWard_phi`) ## breaks?!
 
 ### zones
 anova(mod2 <- lmer(MEAN_folkWard_phi ~ zone1 + (1|shore) , data = df,REML=TRUE))
@@ -72,7 +72,7 @@ summary(mod2)
 
 d <- as.data.frame(ls_means(mod2, test.effs = "Group",pairwise = TRUE))
 d[d$`Pr(>|t|)`<0.051,]
-sjPlot::plot_model(mod2,show.values=TRUE, show.p=TRUE)
+# sjPlot::plot_model(mod2,show.values=TRUE, show.p=TRUE)
 rm(mod2,d)
 
 #### D10 ####
@@ -82,7 +82,7 @@ summary(mod2)
 
 d <- as.data.frame(ls_means(mod2, test.effs = "Group",pairwise = TRUE))
 d[d$`Pr(>|t|)`<0.051,]
-sjPlot::plot_model(mod2,show.values=TRUE, show.p=TRUE)
+# sjPlot::plot_model(mod2,show.values=TRUE, show.p=TRUE)
 rm(mod2,d)
 
 #### D50 ####
@@ -92,7 +92,7 @@ summary(mod2)
 
 d <- as.data.frame(ls_means(mod2, test.effs = "Group",pairwise = TRUE))
 d[d$`Pr(>|t|)`<0.051,]
-sjPlot::plot_model(mod2,show.values=TRUE, show.p=TRUE)
+# sjPlot::plot_model(mod2,show.values=TRUE, show.p=TRUE)
 rm(mod2,d)
 
 #### D90 ####
@@ -102,7 +102,7 @@ summary(mod2)
 
 d <- as.data.frame(ls_means(mod2, test.effs = "Group",pairwise = TRUE))
 d[d$`Pr(>|t|)`<0.051,]
-sjPlot::plot_model(mod2,show.values=TRUE, show.p=TRUE)
+# sjPlot::plot_model(mod2,show.values=TRUE, show.p=TRUE)
 rm(mod2,d)
 
 #### Sorting ####
@@ -112,7 +112,7 @@ summary(mod2)
 
 d <- as.data.frame(ls_means(mod2, test.effs = "Group",pairwise = TRUE))
 d[d$`Pr(>|t|)`<0.051,]
-sjPlot::plot_model(mod2,show.values=TRUE, show.p=TRUE)
+# sjPlot::plot_model(mod2,show.values=TRUE, show.p=TRUE)
 rm(mod2,d)
 
 #### Skew ####
@@ -126,7 +126,7 @@ summary(mod2)
 
 d <- as.data.frame(ls_means(mod2, test.effs = "Group",pairwise = TRUE))
 d[d$`Pr(>|t|)`<0.051,]
-sjPlot::plot_model(mod2,show.values=TRUE, show.p=TRUE)
+# sjPlot::plot_model(mod2,show.values=TRUE, show.p=TRUE)
 rm(mod2,d)
 
 #### Kurtosis ####
@@ -218,7 +218,7 @@ rm(mod2,d)
 rm(list = ls(pattern = "^df"))
 rm(list = ls(pattern = "^phi"))
 rm(list = ls(pattern = "^cb"))
-rm(mnmx,tm,cur.yr,ppi,se,libfolder)
+rm(mnmx,tm,cur.yr,ppi,se,fol,gisfol,perm)
 
 detach("package:effects", unload=TRUE)
 detach("package:lmerTest", unload=TRUE)
