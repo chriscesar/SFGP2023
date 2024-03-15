@@ -140,45 +140,40 @@ summary(mod2)
 
 d <- as.data.frame(ls_means(mod2, test.effs = "Group",pairwise = TRUE))
 d[d$`Pr(>|t|)`<0.051,]
-sjPlot::plot_model(mod2,show.values=TRUE, show.p=TRUE)
+# sjPlot::plot_model(mod2,show.values=TRUE, show.p=TRUE)
 rm(mod2,d)
 
-###
+#### partial tidy up ####
+# rm(list = ls(pattern = "^df"))
+rm(list = ls(pattern = "^phi"))
+rm(tm,mnmx,df0)
+
 ### CHEMICAL DATA ####
 #### load packages & data ####
-df0 <- as_tibble(openxlsx::read.xlsx("data/historic/sed.psa.bulkWIP_use.xlsx",sheet="chemLong.ts.out"))
+df0 <- as_tibble(openxlsx::read.xlsx(paste0(fol,"sed.psa.bulkWIP_use.xlsx"),sheet="chemLong.ts.out"))
+
 #### format factors####
-df0$transect <- factor(df0$transect,levels=c("T1N","T1","T1S",
-"T4","T11","T7","T8","T12","T13",
-"T15", "T17",
-"T20", "T21", "T22","T23",
-"T24","T25","T26",
-"WA1"))
+df0$transect <- factor(df0$transect,levels=c("T1N", "T1", "T1S",
+                                             "T4", "T11", "T7", "T8", "T12",
+                                             "T13",
+                                             "T15", "T21", "T22", "T23",
+                                             "T24", "T25", "T26",
+                                             "WA1"))
 
 df0$shore <- factor(df0$shore,levels=c("Upper","Mid","Low","Surf"))
-df0$zone1 <- factor(df0$zone1,levels=c("Above","Inside","Inside2","Below"))
+df0$zone1 <- factor(df0$zone1,levels=c("Above","Inside","Inside2","Below","Wash"))
 
 #### format data ####
 ### keep only 5cm cores & current year
-df <- df0
-# df <- droplevels(subset(df, method=="15cm"))
-df <- df0[df0$year==cur.yr,]
-df <- df[df$method == "15cm",]
+df0 %>% 
+  filter(.,year==cur.yr) %>% 
+  filter(.,method!="15cm") -> dfchl
+
 ### define function for standard error
 se <- function(x) sqrt(var(x)/length(x))
 
-# # remove WA1 data
-# df0 <- df
-# df0 <- droplevels(df0[df0$transect != "WA1",])
-# # df0$zone1 <- factor(df0$zone1,levels=c("Inside","Above","Inside2","Below"))
-# df.incl.wa <- df;rm(df)
-
 #### widen data
-# df <- df0[!is.na(df0$result),c(1:5,8,11)] %>% 
-#   # group_by
-#   pivot_wider(.,names_from = det,values_from = result)
-
-df %>% 
+dfchl %>% 
 dplyr::select(.,-c(qual,resultRaw,zone2.1,zone2.2)) %>% 
 # group_by(transect,shore,method,year,zone1,det) %>% count() -> tmp
 pivot_wider(.,names_from = det, values_from = result) -> dfw
@@ -190,7 +185,7 @@ summary(mod2)
 
 d <- as.data.frame(ls_means(mod2, test.effs = "Group",pairwise = TRUE))
 d[d$`Pr(>|t|)`<0.051,]
-sjPlot::plot_model(mod2,show.values=TRUE, show.p=TRUE)
+# sjPlot::plot_model(mod2,show.values=TRUE, show.p=TRUE)
 rm(mod2,d)
 
 #### Organic carbon ####
@@ -200,7 +195,7 @@ summary(mod2)
 
 d <- as.data.frame(ls_means(mod2, test.effs = "Group",pairwise = TRUE))
 d[d$`Pr(>|t|)`<0.051,]
-sjPlot::plot_model(mod2,show.values=TRUE, show.p=TRUE)
+# sjPlot::plot_model(mod2,show.values=TRUE, show.p=TRUE)
 rm(mod2,d)
 
 #### Silicates ####
@@ -211,7 +206,7 @@ summary(mod2)
 
 d <- as.data.frame(lmerTest::ls_means(mod2, test.effs = "Group",pairwise = TRUE))
 d[d$`Pr(>|t|)`<0.051,]
-sjPlot::plot_model(mod2,show.values=TRUE, show.p=TRUE)
+# sjPlot::plot_model(mod2,show.values=TRUE, show.p=TRUE)
 rm(mod2,d)
 
 ### generate summary table for current year
@@ -248,10 +243,9 @@ write.csv(summaryTbl, file="output/sed.bulk.summary.csv",row.names = FALSE)
 rm(list = ls(pattern = "^df"))
 rm(list = ls(pattern = "^phi"))
 rm(list = ls(pattern = "^cb"))
-rm(mnmx,tm,cur.yr,ppi,se,fol,gisfol,perm)
+rm(cur.yr,ppi,se,fol,gisfol,perm, summaryTbl)
 
 detach("package:effects", unload=TRUE)
 detach("package:lmerTest", unload=TRUE)
 detach("package:lme4", unload=TRUE)
 detach("package:tidyverse", unload=TRUE)
-                        
