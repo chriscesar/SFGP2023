@@ -130,15 +130,18 @@ dfcra$trmon <- paste0(dfcra$transect,".",dfcra$mon)
 dfcra$trmon <- factor(dfcra$trmon, levels=c(
   "T1.Sep","T1.Oct","T4.Sep","T4.Oct","T8.Sep","T8.Oct","T13.Sep","T13.Oct",
   "T20.Sep","T20.Oct"))
+dfcra$mon <- factor(dfcra$mon,levels=c("Sep","Oct"))
 
 png(file = "output/figs/epi.cra.abnd.cur.png",
     width=12*ppi, height=6*ppi, res=ppi)
 dfcra %>% 
   filter(.,year==cur.yr) %>% 
-  ggplot(.,aes(x=trmon,y=log(Crangon_all+1), fill=zone1))+
+  # ggplot(.,aes(x=trmon,y=log(Crangon_all+1), fill=zone1))+
+  ggplot(.,aes(x=transect,y=log(Crangon_all+1), fill=zone1))+
   geom_bar(stat = "identity",
            colour=1)+
-  facet_wrap(.~depth)+
+  # facet_wrap(.~depth)+
+  facet_grid(mon~depth)+
   scale_fill_manual(values=cbPalette)+
   ylab("Log(Crangon abundance+1)")+
   theme(legend.title = element_blank(),
