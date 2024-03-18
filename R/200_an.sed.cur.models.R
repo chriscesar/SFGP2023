@@ -75,6 +75,12 @@ d[d$`Pr(>|t|)`<0.051,]
 # sjPlot::plot_model(mod2,show.values=TRUE, show.p=TRUE)
 rm(mod2,d)
 
+### 2 way (zone*shore)
+anova(mod2 <- lmer(MEAN_folkWard_phi ~ zone1*shore + (1|transect) , data = df,REML=TRUE))
+summary(mod2)
+# report::report(mod2)
+rm(mod2)
+
 #### D10 ####
 ### zones
 anova(mod2 <- lmer(D10_phi ~ zone1 + (1|shore) , data = df,REML=TRUE))
