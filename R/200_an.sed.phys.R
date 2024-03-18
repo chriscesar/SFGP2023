@@ -24,12 +24,12 @@ df$transect <- factor(df$transect,
                           "T24","T25","T26",
                           "T20", "T21","T22", "T23","WA1"))
 df$zone1 <- factor(df$zone1,
-                   levels = c("Above", "Inside","Inside2","Below"))
+                   levels = c("Above", "Inside","Inside2","Below","Wash"))
 
 df$shore <- factor(df$shore,
                    levels=c("Upper","Mid","Low","Surf"))
 
-cur_dat <- subset(df, year == cur.yr)
+cur_dat <- droplevels(subset(df, year == cur.yr))
 
 ##=============###
 # Wave type   ####
