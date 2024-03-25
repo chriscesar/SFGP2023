@@ -276,10 +276,10 @@ geom_bar(stat = "identity", colour = "black")+
 facet_wrap(~ shore, ncol = 1)+
 theme(legend.position="none",strip.text.x = element_text(size = 12))+
 scale_x_discrete(breaks=NULL)+
-ylab("Shannon's entropy") + xlab("")+
+ylab("Shannon entropy") + xlab("")+
 scale_fill_manual(values=cbPalette)+
 labs(fill="")+
-labs(subtitle = expression("Shannon's entropy ("~italic("H'")~")"))
+labs(subtitle = expression("Shannon entropy ("~italic("H'")~")"))
 
 ### Pielou ####
 J <- ggplot(data = dfdivcur,
@@ -396,7 +396,7 @@ geom_smooth(method = "gam", colour = "red", span = .9)+
 facet_grid(shore~zone1)+
 scale_colour_manual(name = "", values=cbPalette)+
 scale_fill_manual(name = "", values=cbPalette)+
-xlab("Year") + ylab(bquote("Shannon diversity"))+
+xlab("Year") + ylab(bquote("Shannon entropy"))+
 theme(legend.position="none",
 strip.text.x = element_text(size = 12),
 strip.text.y = element_text(size = 12),
