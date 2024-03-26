@@ -401,6 +401,23 @@ remove_zero_sum_numeric_cols <- function(data) {
 result <- remove_zero_sum_numeric_cols(dfcur)
 write.csv(result, file = "output/dfw_epi.csv",row.names = FALSE)
 
+# plot taxon trends ####
+df0 %>% 
+  dplyr::select(.,-c(taxonRecorded,Kingdom:Species,Comments,DataSource)) %>% 
+  group_by(year,transect,zone1,depth,mon,taxonUse) %>% 
+  summarise(abund=sum(abund),.groups = "drop") %>% 
+  # distinct() %>% group_by(year,transect,zone1,depth,mon,taxonUse) %>% count() %>% filter(n>1) %>% View(.)
+  pivot_wider(names_from = taxonUse, values_from = abund,values_fill = 0) %>%
+  pivot_longer(cols = Ammodytes:"Electra monostachys",names_to = "taxon", values_to = "abund") %>% 
+  ## drop month and take mean by station
+  dplyr::select(.,-c(mon)) %>% 
+  group_by(year,transect,zone1,depth, taxon) %>% 
+  summarise(abund=mean(abund),.groups="drop") %>% 
+  filter(.,abund>-1) %>% 
+  ggplot(data=.,aes(x=year, y=log(abund+1)))+
+  geom_line(aes(group=taxon))+geom_point(aes(group=taxon))+
+  facet_grid(depth~zone1, scales = "free_y")+
+  geom_smooth(se=FALSE, alpha=0.8,aes(group=taxon))
 
 # Tidy up ####
 # unload packages
