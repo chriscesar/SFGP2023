@@ -8,7 +8,7 @@ dfw$zone1 <- factor(dfw$zone1,levels=c("Above","Inside","Inside2","Below","Wash"
 
 ## load packages
 ld_pkgs <- c("tidyverse","ggplot2", "vegan", "lmerTest","ggpp","ggtext",
-             "mvabund", "patchwork")
+             "mvabund", "patchwork","gllvm")
 vapply(ld_pkgs, library, logical(1L),
        character.only = TRUE, logical.return = TRUE)
 rm(ld_pkgs)
@@ -404,6 +404,8 @@ write.csv(result, file = "output/dfw_epi.csv",row.names = FALSE)
 # plot taxon trends ####
 df0 %>% 
   dplyr::select(.,-c(taxonRecorded,Kingdom:Species,Comments,DataSource)) %>% 
+  filter(.,taxonUse != "AFAUNAL") %>% #remove afaunal samples
+  mutate(.,abund=as.numeric(abund)) %>% 
   group_by(year,transect,zone1,depth,mon,taxonUse) %>% 
   summarise(abund=sum(abund),.groups = "drop") %>% 
   # distinct() %>% group_by(year,transect,zone1,depth,mon,taxonUse) %>% count() %>% filter(n>1) %>% View(.)
@@ -418,6 +420,86 @@ df0 %>%
   geom_line(aes(group=taxon))+geom_point(aes(group=taxon))+
   facet_grid(depth~zone1, scales = "free_y")+
   geom_smooth(se=FALSE, alpha=0.8,aes(group=taxon))
+
+# GLLVM version ####
+## tidy data ####
+### take mean abundance across the 2 monthly samples and insert zero values
+dfw2 <- df0 %>% 
+  filter(.,Kingdom=="Animalia") %>% #keep only faunal taxa
+  filter(.,taxonUse != "AFAUNAL") %>% #remove afaunal samples
+  mutate(.,abund=as.numeric(abund)) %>% 
+  dplyr::select(.,-c(taxonRecorded,Kingdom:Species,Comments,DataSource)) %>% 
+  group_by(year,transect,zone1,depth,mon,taxonUse) %>% 
+  summarise(abund=sum(abund),.groups = "drop") %>% 
+  pivot_wider(names_from = taxonUse, values_from = abund,values_fill = 0) %>%
+  pivot_longer(cols = Ammodytes:"Electra monostachys",names_to = "taxon", values_to = "abund") %>% 
+  ## drop month and take mean by station
+  dplyr::select(.,-c(mon)) %>% 
+  group_by(year,transect,zone1,depth, taxon) %>% 
+  summarise(abund=mean(abund),.groups="drop") %>% 
+  filter(.,abund>-1) %>% 
+  # rewiden
+  pivot_wider(names_from = taxon, values_from = abund, values_fill = 0) %>% 
+  select(-where(sum_zero))#remove columns summing to zero
+
+dfw_tx <- dfw2 %>% 
+  select(.,-c("year":"depth"))
+dfw_met <- dfw2 %>% 
+  select(.,c("year":"depth"))
+
+## reorder factors for model interpretation
+dfw_met$zone1 <- factor(dfw_met$zone1,levels=c(
+  "Inside", "Above","Inside2","Below"
+))
+dfw2$zone1 <- factor(dfw2$zone1,levels=c(
+  "Inside", "Above","Inside2","Below"))
+
+### prep models ####
+### fit models ####
+### Unconstrained model ####
+#### Negative binomial ####
+ptm <- Sys.time()
+sDsn <- data.frame(depth = dfw_met$depth,
+                   transect=dfw_met$transect,
+                   zone1=dfw_met$zone1,
+                   year=dfw_met$year)
+m_lvm_0 <- gllvm(y = dfw_tx,
+                 X = sDsn,
+                 # formula = ~ zone1,
+                 family="negative.binomial",
+                 studyDesign = sDsn,
+                 row.eff = ~corAR1(1|year)#include year as a structured row effect
+)
+saveRDS(m_lvm_0, file="output/models/epi_gllvm_uncon_neg.bin_AR1.Rdat")
+Sys.time() - ptm;rm(ptm) #1.2 mins
+m_lvm_0 <- readRDS("output/models/epi_gllvm_uncon_neg.bin_AR1.Rdat")
+plot(m_lvm_0)
+summary(m_lvm_0)
+
+### Constrained model ####
+#### Negative binomial ####
+ptm <- Sys.time()
+sDsn <- data.frame(
+  # depth = dfw_met$depth,
+                   transect=dfw_met$transect,
+                   # zone1=dfw_met$zone1,
+                   year=dfw_met$year)
+m_lvm_1 <- gllvm(y = dfw_tx,
+                 X = dfw2[,c(1:4)],
+                 formula = ~ zone1,
+                 family = "negative.binomial",
+                 studyDesign = sDsn,
+                 row.eff = ~corAR1(1|year)#include year as a structured row effect
+                 )
+saveRDS(m_lvm_1, file="output/models/epi_gllvm_con_neg.bin_AR1.Rdat")
+Sys.time() - ptm;rm(ptm) #49 sec
+m_lvm_1 <- readRDS("output/models/epi_gllvm_con_neg.bin_AR1.Rdat")
+plot(m_lvm_1)
+summary(m_lvm_1)
+anova(m_lvm_0,m_lvm_1)
+AIC(m_lvm_0,m_lvm_1)
+
+coefplot(m_lvm_1)
 
 # Tidy up ####
 # unload packages
