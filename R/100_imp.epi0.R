@@ -30,7 +30,8 @@ if (!file.exists(destination_file)) {
 }
 
 df0 <- as_tibble(read_xlsx(destination_file,
-                           sheet = "epi.ts.long"))
+                           sheet = "epi.ts.long",
+                           guess_max = 50000))#blanks at top of data means read in as logical
 df_cra_ts <- as_tibble(read_xlsx(destination_file,
                            sheet = "df.cra.ts",
                            guess_max = 50000#blanks at top of data means read in as logical
