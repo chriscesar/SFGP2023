@@ -144,9 +144,9 @@ rm(S)
 
 ### TaxDensity ####
 N <- ggplot(data = dfw, aes(y = log(N+1), x = year, fill = zone1))+
-  geom_hline(yintercept = mean(dfw$S,na.rm = TRUE),colour="grey",linetype="dashed")+
-  geom_hline(yintercept = min(dfw$S,na.rm = TRUE),colour="grey",linetype="dotted")+
-  geom_hline(yintercept = max(dfw$S,na.rm = TRUE),colour="grey",linetype="dotted")+
+  geom_hline(yintercept = mean(log(dfw$N+1),na.rm = TRUE),colour="grey",linetype="dashed")+
+  geom_hline(yintercept = min(log(dfw$N+1),na.rm = TRUE),colour="grey",linetype="dotted")+
+  geom_hline(yintercept = max(log(dfw$N+1),na.rm = TRUE),colour="grey",linetype="dotted")+
   geom_boxplot(aes(group=year))+
   geom_smooth(method = "loess", colour = "red", span = .9)+
   # geom_smooth(method = "gam", colour = "red", span = .9)+
